@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MatchFrame — AI Dating Photos for Men</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0B0B0F; --bgCard:#15151C; --bgEl:#1C1C26;
+  --accent:#C9943E; --accentMut:rgba(201,148,62,0.15);
+  --text:#F0EBE0; --muted:#8A8690; --dim:#5C5862;
+  --red:#E84855; --green:#4ECB71; --border:#2A2A35;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:var(--bg)}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:2px}
+input::placeholder{color:var(--dim)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.fu{animation:fadeUp .6s ease-out both}
+.fi{animation:fadeIn .5s ease-out both}
+
+/* Photo placeholder styling */
+.photo-placeholder {
+  position:relative; overflow:hidden; border-radius:10px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; gap:8px; padding:16px;
+}
+.photo-placeholder .label {
+  font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+  padding:4px 12px; border-radius:100px; position:absolute; top:10px; left:10px;
+}
+.photo-placeholder .desc {
+  font-size:13px; line-height:1.5; max-width:200px;
+}
+.photo-placeholder .swap-note {
+  font-size:10px; font-weight:500; opacity:.6; margin-top:4px;
+  border-top:1px dashed rgba(255,255,255,.1); padding-top:8px; width:100%;
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const {useState,useEffect,useRef,createElement:h} = React;
+
+/* ─── COLORS shorthand ─── */
+const C={bg:"#0B0B0F",bgCard:"#15151C",bgEl:"#1C1C26",accent:"#C9943E",accentMut:"rgba(201,148,62,0.15)",text:"#F0EBE0",muted:"#8A8690",dim:"#5C5862",red:"#E84855",green:"#4ECB71",border:"#2A2A35"};
+
+/* ─── SVG ICONS (inline, no deps) ─── */
+const Icon=({name,size=20,color=C.muted})=>{
+  const icons={
+    check:<polyline points="20 6 9 17 4 12"/>,
+    chevronRight:<polyline points="9 18 15 12 9 6"/>,
+    chevronDown:<polyline points="6 9 12 15 18 9"/>,
+    star:<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>,
+    shield:<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>,
+    clock:<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,
+    zap:<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>,
+    camera:<><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></>,
+    heart:<path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>,
+    arrowRight:<><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></>,
+    x:<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>,
+    target:<><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>,
+    eye:<><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>,
+    sparkles:<><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></>,
+    lock:<><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></>,
+    gift:<><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></>,
+    users:<><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></>,
+    messageCircle:<><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></>,
+    mountain:<><path d="M8 3l4 8 5-5 7 14H0z"/></>,
+    user:<><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
+    bell:<><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></>,
+    image:<><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></>,
+    dog:<><circle cx="12" cy="10" r="3"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></>,
+    wine:<><path d="M8 22h8M12 18v4M12 2v4"/><path d="M6 6h12l-1 8a5 5 0 01-10 0L6 6z"/></>,
+    dumbbell:<><path d="M6.5 6.5h11M6 12h12M6.5 17.5h11"/></>,
+  };
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{icons[name]}</svg>;
+};
+
+/* ─── PHOTO PLACEHOLDER / AUTO-IMAGE COMPONENT ─── */
+const resolvePhotoSrc=(description="",photoNote="")=>{
+  const hay=(String(description)+" "+String(photoNote)).toLowerCase();
+  const file=(name)=>encodeURI(`./media/${name}`);
+
+  if (hay.includes("hinge")) return file("hinge screenshot.jpg");
+  if (hay.includes("bumble")) return file("bumble ikon.png");
+  if (hay.includes("bad") || hay.includes("terrible") || hay.includes("blurry") || hay.includes("worst-case")) return file("bad dating photo example.png");
+  if (hay.includes("average") || hay.includes("forgettable")) return file("average dating photo example.JPG");
+  if (hay.includes("great") || hay.includes("warm light") || hay.includes("best day")) return file("great dating photo example.JPG");
+
+  return null;
+};
+
+const PhotoPlaceholder=({type="before",height=200,description,photoNote,style={},src})=>{
+  const styles={
+    before:{bg:"linear-gradient(135deg,#1a1a24,#12121a)",border:"1px dashed rgba(232,72,85,.3)",labelBg:"rgba(232,72,85,.15)",labelColor:C.red,iconColor:C.dim},
+    after:{bg:"linear-gradient(135deg,rgba(201,148,62,.1),rgba(78,203,113,.04))",border:"1px solid rgba(201,148,62,.25)",labelBg:C.accentMut,labelColor:C.accent,iconColor:C.accent},
+    neutral:{bg:"linear-gradient(135deg,rgba(255,255,255,.03),rgba(255,255,255,.01))",border:"1px solid rgba(255,255,255,.08)",labelBg:"rgba(255,255,255,.06)",labelColor:C.muted,iconColor:C.dim},
+    hinge:{bg:"linear-gradient(135deg,rgba(75,59,124,.15),rgba(75,59,124,.05))",border:"1px solid rgba(75,59,124,.3)",labelBg:"rgba(228,101,140,.15)",labelColor:"#E4658C",iconColor:"rgba(228,101,140,.6)"},
+    result:{bg:"linear-gradient(135deg,rgba(78,203,113,.08),rgba(201,148,62,.05))",border:"1px solid rgba(78,203,113,.2)",labelBg:"rgba(78,203,113,.12)",labelColor:C.green,iconColor:C.green},
+  };
+  const s=styles[type]||styles.neutral;
+  const imageSrc = src || resolvePhotoSrc(description, photoNote);
+
+  if (imageSrc) {
+    return(
+      <div className="photo-placeholder" style={{background:s.bg,border:s.border,height,padding:0,...style}}>
+        <span className="label" style={{background:s.labelBg,color:s.labelColor}}>
+          {type==="before"?"📷 Before":type==="after"?"✨ After":type==="hinge"?"💜 Hinge":type==="result"?"📊 Result":"📷 Photo"}
+        </span>
+        <img src={imageSrc} alt={description||"MatchFrame visual"} style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+      </div>
+    );
+  }
+
+  return(
+    <div className="photo-placeholder" style={{background:s.bg,border:s.border,height,...style}}>
+      <span className="label" style={{background:s.labelBg,color:s.labelColor}}>
+        {type==="before"?"📷 SWAP: Before Photo":type==="after"?"✨ SWAP: After Photo":type==="hinge"?"💜 SWAP: Hinge Screenshot":type==="result"?"📊 SWAP: Result Photo":"📷 SWAP: Photo"}
+      </span>
+      <Icon name="image" size={28} color={s.iconColor}/>
+      <span className="desc" style={{color:s.labelColor}}>{description}</span>
+      {photoNote&&<span className="swap-note" style={{color:s.iconColor}}>{photoNote}</span>}
+    </div>
+  );
+};
+
+/* ─── PRIMITIVES ─── */
+const Btn=({children,onClick,variant="primary",size="md",full,disabled,style:st={}})=>{
+  const base={display:"inline-flex",alignItems:"center",justifyContent:"center",gap:8,border:"none",cursor:disabled?"not-allowed":"pointer",fontFamily:"'Outfit',sans-serif",fontWeight:600,borderRadius:8,transition:"all .2s",opacity:disabled?.5:1,width:full?"100%":"auto",letterSpacing:".02em"};
+  const sz={sm:{padding:"10px 20px",fontSize:14},md:{padding:"14px 28px",fontSize:16},lg:{padding:"18px 36px",fontSize:18}};
+  const vr={primary:{background:`linear-gradient(135deg,${C.accent},#B8842E)`,color:C.bg},secondary:{background:"transparent",color:C.accent,border:`2px solid ${C.accent}`}};
+  return<button onClick={onClick} disabled={disabled} style={{...base,...sz[size],...vr[variant],...st}}>{children}</button>;
+};
+const Badge=({children})=><span style={{display:"inline-flex",alignItems:"center",gap:6,padding:"6px 14px",borderRadius:100,background:C.accentMut,color:C.accent,fontSize:13,fontWeight:600,letterSpacing:".04em",textTransform:"uppercase"}}>{children}</span>;
+const Sec=({children,style:st={},wide})=><section style={{maxWidth:wide?900:720,margin:"0 auto",padding:"60px 24px",...st}}>{children}</section>;
+const Heading=({children,size="lg",style:st={}})=>{const s={xl:{fontSize:"clamp(32px,5vw,48px)",lineHeight:1.1},lg:{fontSize:"clamp(24px,4vw,36px)",lineHeight:1.15},md:{fontSize:"clamp(20px,3vw,28px)",lineHeight:1.25}};return<h2 style={{fontFamily:"'Playfair Display',serif",fontWeight:700,color:C.text,...s[size],...st}}>{children}</h2>};
+const Divider=()=><div style={{height:1,background:`linear-gradient(90deg,transparent,${C.border},transparent)`,margin:"48px 0"}}/>;
+
+const FaqItem=({q,a})=>{const[o,sO]=useState(false);return<div style={{borderBottom:`1px solid ${C.border}`,padding:"18px 0",cursor:"pointer"}} onClick={()=>sO(!o)}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><span style={{fontWeight:600,fontSize:15,paddingRight:16}}>{q}</span><Icon name="chevronDown" size={18} color={C.accent}/></div>{o&&<p style={{marginTop:12,fontSize:14,lineHeight:1.7,color:C.muted}}>{a}</p>}</div>};
+
+const Timer=()=>{const[t,sT]=useState({h:2,m:47,s:13});useEffect(()=>{const i=setInterval(()=>sT(p=>{let{h,m,s}=p;if(s>0)s--;else if(m>0){m--;s=59}else if(h>0){h--;m=59;s=59}return{h,m,s}}),1000);return()=>clearInterval(i)},[]);const pad=n=>String(n).padStart(2,"0");return<div style={{display:"flex",gap:8,justifyContent:"center"}}>{[["HRS",t.h],["MIN",t.m],["SEC",t.s]].map(([l,v])=><div key={l} style={{background:C.bgEl,borderRadius:8,padding:"8px 14px",textAlign:"center",minWidth:56}}><div style={{fontSize:22,fontWeight:700,fontVariantNumeric:"tabular-nums",color:C.accent}}>{pad(v)}</div><div style={{fontSize:10,color:C.dim,letterSpacing:".1em",marginTop:2}}>{l}</div></div>)}</div>};
+
+const Progress=({step,total})=><div style={{background:C.bgEl,borderRadius:100,height:6,overflow:"hidden",marginBottom:8}}><div style={{height:"100%",width:`${(step/total)*100}%`,background:`linear-gradient(90deg,${C.accent},#DBA94F)`,borderRadius:100,transition:"width .4s ease"}}/></div>;
+
+const TopBar=()=><div style={{padding:"16px 24px",borderBottom:`1px solid ${C.border}`,display:"flex",justifyContent:"center",alignItems:"center",gap:10}}><Icon name="target" size={22} color={C.accent}/><span style={{fontWeight:700,fontSize:20,letterSpacing:"-.02em"}}>Match<span style={{color:C.accent}}>Frame</span></span></div>;
+
+/* ─── SOCIAL PROOF COMPONENTS ─── */
+const ProofTicker=()=>{
+  const items=["2,400+ profiles upgraded","4.8★ average rating","94% say friends couldn't tell","3x avg match increase","24hr delivery","Likeness guaranteed","$39 starting price"];
+  return<div style={{background:C.bgEl,borderBottom:`1px solid ${C.border}`,overflow:"hidden",padding:"10px 0"}}><div style={{display:"flex",gap:40,animation:"tickerScroll 25s linear infinite",width:"max-content"}}>{[...items,...items].map((t,i)=><span key={i} style={{fontSize:13,fontWeight:500,color:C.muted,whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:6}}><span style={{width:4,height:4,borderRadius:"50%",background:C.accent,flexShrink:0}}/>{t}</span>)}</div></div>;
+};
+
+const InlineProof=({quote,name,age,handles,result})=>(
+  <div style={{background:`linear-gradient(135deg,${C.accentMut},rgba(201,148,62,.03))`,border:`1px solid rgba(201,148,62,.2)`,borderRadius:12,padding:"20px 24px",margin:"28px 0",display:"flex",gap:16,alignItems:"flex-start"}}>
+    <div style={{width:40,height:40,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},#B8842E)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:C.bg,fontWeight:700,fontSize:16}}>{name[0]}</div>
+    <div style={{flex:1}}>
+      <p style={{fontSize:14,lineHeight:1.65,fontStyle:"italic",marginBottom:10}}>"{quote}"</p>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+        <span style={{fontWeight:600,fontSize:13}}>{name}, {age}</span>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          {result&&<span style={{fontSize:11,fontWeight:600,color:C.green,background:"rgba(78,203,113,.12)",padding:"3px 10px",borderRadius:100}}>{result}</span>}
+          {handles&&<span style={{fontSize:11,fontWeight:500,color:C.accent,background:C.accentMut,padding:"3px 10px",borderRadius:100}}>Handles: {handles}</span>}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const AvatarStrip=()=>(
+  <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,flexWrap:"wrap"}}>
+    <div style={{display:"flex"}}>{["#E4658C","#8B5CF6","#F59E0B","#10B981","#3B82F6","#EF4444","#6366F1","#14B8A6"].map((col,i)=><div key={i} style={{width:32,height:32,borderRadius:"50%",background:`linear-gradient(135deg,${col},${col}88)`,border:`2px solid ${C.bg}`,marginLeft:i>0?-8:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:"#fff"}}>{String.fromCharCode(65+i)}</div>)}</div>
+    <span style={{fontSize:13,color:C.muted}}>Join <strong style={{color:C.text}}>2,400+</strong> men who upgraded</span>
+  </div>
+);
+
+function md(text){return text.split(/(\*\*[^*]+\*\*)/g).map((p,i)=>p.startsWith("**")&&p.endsWith("**")?<strong key={i} style={{color:C.accent,fontWeight:700}}>{p.slice(2,-2)}</strong>:<span key={i}>{p}</span>)}
+
+
+/* ═══════════════════════════════════════════
+   QUIZ — 13 steps, now with visual photo suggestions
+   ═══════════════════════════════════════════ */
+const STEPS=[
+  // Step 1
+  {type:"q",id:"app",q:"Which dating app are you trying to get more matches on?",opts:["Hinge (most common)","Bumble","Tinder","Multiple apps"],
+   visual:{type:"grid",photos:[
+     {desc:"Hinge app icon / screenshot",note:"Screenshot of Hinge discover feed"},
+     {desc:"Bumble app icon / screenshot",note:"Screenshot of Bumble swipe view"},
+   ]}
+  },
+  // Step 2
+  {type:"q",id:"rating",q:"How would you honestly rate your current profile photos?",opts:["They're bad — I know it","Average at best","Decent but could be better","I think they're good but I'm not getting results"],
+   visual:{type:"spectrum",photos:[
+     {desc:"Example of a terrible dating photo: dark, blurry, bathroom mirror selfie",note:"Worst-case dating photo example"},
+     {desc:"Example of an average photo: decent but forgettable, basic headshot",note:"Average dating photo example"},
+     {desc:"Example of a great dating photo: warm light, natural smile, lifestyle context",note:"Great dating photo example"},
+   ]}
+  },
+  // Step 3
+  {type:"q",id:"inperson",q:"Do people ever tell you that you look better in person than in your photos?",opts:["All the time","Sometimes","Not really — I look the same","I've never asked"],
+   visual:{type:"single",photo:{desc:"Split image: guy looking great in person (candid, laughing) vs same guy looking flat in a selfie",note:"Side-by-side: real life vs phone photo"}}
+  },
+  // Step 4 — Insight
+  {type:"i",id:"stat",title:"Here's the problem:",
+   body:["Hinge's own data shows that your first photo determines whether she ever reads a single one of your prompts. **73% of rejections happen in under 2 seconds** — before your personality gets a chance.","That means if you look better in person than in your photos, you're being filtered out by women who would actually like you in real life.","Men who upgrade their first photo typically see a **2–3x increase in quality matches** within the first week."],
+   visual:{type:"stat",photos:[
+     {desc:"Hinge app screenshot showing first photo prominence in the feed — the big photo that takes up the whole screen",note:"Hinge discover feed screenshot showing how dominant first photo is"},
+     {desc:"Simple bar chart or infographic: '73% rejected in under 2 seconds'",note:"Custom graphic showing the 73% stat visually"},
+   ]}
+  },
+  // Step 5
+  {type:"q",id:"matches",q:"How many quality matches — women you'd actually want to meet — are you getting per week?",opts:["0–2","3–5","6–10","10+"]},
+  // Step 6
+  {type:"q",id:"tried",q:"Have you ever tried to fix your photos? What happened?",opts:["Asked a friend — still looked awkward","Tried a photographer — too expensive or felt forced","Tried AI tools — looked fake or nothing like me","Tried better selfies — still not great","Haven't tried anything yet"],
+   visual:{type:"grid",photos:[
+     {desc:"Awkward friend-taken photo: forced smile, bad angle, random background",note:"Example of friend-taken photo gone wrong"},
+     {desc:"Overly-polished AI headshot that looks obviously fake/corporate",note:"Generic AI headshot that looks fake"},
+   ]}
+  },
+  // Step 7 — Insight (mechanism)
+  {type:"i",id:"mech",title:"Here's why nothing else has worked:",
+   body:["Selfies flatten how you actually look. Friends don't know angles or lighting. Photographers cost $500–$1,000 and the results still feel stiff. And most AI photo tools? They make you look like a different person entirely.","The fix isn't \"better pictures.\" It's photos that show **the real you** — with the lighting, framing, and confidence that match how you actually come across in person.","That's what a new category of authenticity-first AI photo tools are doing: preserving your real features while upgrading the presentation. No studio. No awkward posing. And the results still look like you."],
+   visual:{type:"comparison",photos:[
+     {type:"before",desc:"Generic AI headshot: glossy, over-smooth skin, dead eyes, corporate background. Obviously AI.",note:"Example of what BAD AI photos look like — the 'LinkedIn look'"},
+     {type:"after",desc:"MatchFrame-style output: natural skin, warm light, casual setting, genuine expression. Looks like a friend took it.",note:"Example of what GOOD AI photos look like — natural and dating-appropriate"},
+   ]}
+  },
+  // Step 8
+  {type:"q",id:"auth",q:"How important is it to you that your profile photos actually look like you in person?",opts:["Non-negotiable — I'd rather get fewer matches than catfish someone","Very important — I want to look like me on my best day","Somewhat important — as long as it's close enough","I just want more matches, honestly"]},
+  // Step 9 — Insight (social proof)
+  {type:"i",id:"proof",title:"You're not alone.",
+   body:["Over 2,400 men have already upgraded their dating profiles using this system. Here's what they consistently report:"],
+   testimonials:[
+     {quote:"My matches tripled in the first week. And the girls I'm matching with now are actually my type.",name:"Jake",age:29,tag:"3x matches in 7 days",
+      photo:{desc:"Before/after: Jake's old blurry selfie vs his MatchFrame close-up with warm lighting",note:"Real customer before/after thumbnail"}},
+     {quote:"I was skeptical about AI photos but these literally just look like me on a good day. My buddy didn't even realize they were AI.",name:"Marcus",age:32,tag:"Undetectable",
+      photo:{desc:"Marcus's MatchFrame photo side-by-side with a real candid photo of him — they look the same",note:"Real customer photo proving likeness"}},
+     {quote:"Way better than the $800 photographer I tried last year. And it took 10 minutes from my couch.",name:"Ryan",age:27,tag:"Better than $800 shoot",
+      photo:{desc:"Ryan's stiff photographer photo vs his natural MatchFrame output",note:"Photographer vs MatchFrame comparison"}},
+   ]
+  },
+  // Step 10
+  {type:"q",id:"value",q:"If you could wake up tomorrow with a profile that consistently attracts the kind of women you actually want to date — how much would that be worth to you?",opts:["It would be life-changing","Worth a lot — I'd easily pay for it","Worth something — depends on the price","I'm not sure yet"]},
+  // Step 11
+  {type:"q",id:"obj",q:"What's the #1 thing that would need to be true for you to try a new approach to your profile photos?",opts:["The photos still look like me — no catfishing","It's fast and easy — no awkward photoshoot","There's proof it actually works","It's not ridiculously expensive"]},
+  // Step 12 — Insight (differentiation)
+  {type:"i",id:"diff",title:"This isn't another generic AI headshot tool.",
+   body:["Most AI photo tools are built for LinkedIn. They make you look corporate, polished, and completely unlike someone a woman would want to grab drinks with.","**MatchFrame is built specifically for dating apps like Hinge.** Every output is calibrated to look natural, authentic, and like you on your best day — not a different guy."],
+   steps:["Upload a few regular photos of yourself","Our AI enhances lighting, framing, and presentation while keeping your real features","Get back dating-app-ready photos in 24 hours — no studio, no posing, no cringe"],
+   visual:{type:"process",photos:[
+     {desc:"Phone screen showing photo upload UI — simple drag and drop of casual selfies",note:"Screenshot of upload interface"},
+     {desc:"Processing/AI visual: abstract representation of photo enhancement in progress",note:"Processing animation or graphic"},
+     {desc:"Final output gallery: 8 polished dating photos displayed in a grid, all clearly the same person",note:"Gallery view of completed photo pack"},
+   ]}
+  },
+];
+
+const QuizPage=({onComplete})=>{
+  const[idx,setIdx]=useState(0);
+  const[ans,setAns]=useState({});
+  const[email,setEmail]=useState("");
+  const tot=STEPS.length+1;
+  const qNum=STEPS.slice(0,idx+1).filter(s=>s.type==="q").length;
+  const qTot=STEPS.filter(s=>s.type==="q").length;
+  const next=()=>{setIdx(idx+1);window.scrollTo({top:0,behavior:"instant"})};
+  const pick=v=>{setAns({...ans,[STEPS[idx].id]:v});next()};
+
+  // EMAIL CAPTURE (Step 13)
+  if(idx>=STEPS.length){
+    return(
+      <div style={{minHeight:"100vh",background:C.bg}}>
+        <TopBar/>
+        <Sec>
+          <div className="fu" style={{textAlign:"center"}}>
+            <Progress step={tot} total={tot}/>
+            <div style={{marginBottom:32}}/>
+            <Badge>⚡ Your Results Are Ready</Badge>
+            <Heading size="lg" style={{margin:"20px 0 16px"}}>Your photos are likely costing you <span style={{color:C.accent}}>60–80% of matches</span> you'd otherwise get.</Heading>
+            <p style={{color:C.muted,fontSize:16,lineHeight:1.7,marginBottom:8}}>But the good news: this is the single easiest thing to fix on your entire profile.</p>
+            
+            {/* PHOTO: Result preview */}
+            <div style={{margin:"24px auto",maxWidth:500}}>
+              <PhotoPlaceholder type="result" height={180}
+                description="Collage preview: show 4-6 sample MatchFrame outputs in a grid — confident close-up, outdoor shot, social, full body. All clearly the same person."
+                photoNote="This is the 'sneak peek' of what they're about to get. Make it aspirational but realistic."
+              />
+            </div>
+
+            <p style={{color:C.muted,fontSize:15,lineHeight:1.7,marginBottom:24}}>Enter your email to see your personalized improvement plan.</p>
+            <div style={{maxWidth:420,margin:"0 auto",textAlign:"left"}}>
+              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Your best email address" style={{width:"100%",padding:"14px 18px",borderRadius:8,border:`1px solid ${C.border}`,background:C.bgCard,color:C.text,fontSize:16,fontFamily:"'Outfit',sans-serif",marginBottom:16}}/>
+              <div style={{marginBottom:20}}>{["See your personalized profile improvement plan","Get access to our Hinge-optimized AI photo upgrade","See real before/after results from men like you","Backed by our \"Still Looks Like You\" guarantee"].map(it=><div key={it} style={{display:"flex",gap:10,marginBottom:10,fontSize:14,color:C.muted}}><Icon name="check" size={18} color={C.green}/>{it}</div>)}</div>
+              <Btn full size="lg" onClick={onComplete} disabled={!email}>Show Me My Results →</Btn>
+              <p style={{fontSize:12,color:C.dim,marginTop:12,textAlign:"center"}}>No spam. Unsubscribe anytime.</p>
+            </div>
+          </div>
+        </Sec>
+      </div>
+    );
+  }
+
+  const s=STEPS[idx];
+
+  // INSIGHT SLIDES
+  if(s.type==="i"){
+    return(
+      <div style={{minHeight:"100vh",background:C.bg}}>
+        <TopBar/>
+        <Sec>
+          <Progress step={idx+1} total={tot}/>
+          <div style={{marginBottom:28}}/>
+          <div className="fu" style={{background:`linear-gradient(135deg,${C.accentMut},rgba(201,148,62,.03))`,border:`1px solid rgba(201,148,62,.25)`,borderRadius:16,padding:"32px 28px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:20}}>
+              <Icon name="sparkles" size={20} color={C.accent}/>
+              <span style={{fontSize:12,fontWeight:600,color:C.accent,textTransform:"uppercase",letterSpacing:".08em"}}>Insight</span>
+            </div>
+            <h3 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(20px,3.5vw,26px)",fontWeight:700,marginBottom:20,lineHeight:1.25}}>{s.title}</h3>
+            
+            {s.body.map((p,i)=><p key={i} style={{fontSize:15,lineHeight:1.75,marginBottom:16}}>{md(p)}</p>)}
+            
+            {/* VISUAL: Photos for this insight slide */}
+            {s.visual&&s.visual.type==="stat"&&(
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,margin:"20px 0"}}>
+                {s.visual.photos.map((ph,i)=>(
+                  <PhotoPlaceholder key={i} type="neutral" height={160} description={ph.desc} photoNote={ph.note}/>
+                ))}
+              </div>
+            )}
+            {s.visual&&s.visual.type==="comparison"&&(
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,margin:"20px 0"}}>
+                {s.visual.photos.map((ph,i)=>(
+                  <PhotoPlaceholder key={i} type={ph.type} height={200} description={ph.desc} photoNote={ph.note}/>
+                ))}
+              </div>
+            )}
+            {s.visual&&s.visual.type==="process"&&(
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,margin:"20px 0"}}>
+                {s.visual.photos.map((ph,i)=>(
+                  <PhotoPlaceholder key={i} type="neutral" height={150} description={ph.desc} photoNote={ph.note} style={{fontSize:11}}/>
+                ))}
+              </div>
+            )}
+
+            {/* Testimonials with photo thumbnails */}
+            {s.testimonials&&<div style={{marginTop:20}}>
+              {s.testimonials.map((t,i)=>(
+                <div key={i} style={{background:C.bg,borderRadius:10,padding:"16px 18px",marginBottom:12,border:`1px solid ${C.border}`}}>
+                  <div style={{display:"flex",gap:14}}>
+                    {/* PHOTO: Testimonial thumbnail */}
+                    {t.photo&&(
+                      <div style={{width:80,flexShrink:0}}>
+                        <PhotoPlaceholder type="after" height={80} description={t.photo.desc} photoNote={t.photo.note} style={{fontSize:9,padding:8}}/>
+                      </div>
+                    )}
+                    <div style={{flex:1}}>
+                      <p style={{fontSize:14,lineHeight:1.65,fontStyle:"italic",marginBottom:10}}>"{t.quote}"</p>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                        <span style={{fontWeight:600,fontSize:13}}>{t.name}, {t.age}</span>
+                        <span style={{fontSize:12,color:C.green,fontWeight:600,background:"rgba(78,203,113,.1)",padding:"3px 10px",borderRadius:100}}>{t.tag}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>}
+
+            {s.steps&&<div style={{marginTop:20,background:C.bg,borderRadius:10,padding:20,border:`1px solid ${C.border}`}}>
+              <div style={{fontSize:13,fontWeight:600,color:C.accent,textTransform:"uppercase",letterSpacing:".06em",marginBottom:14}}>How it works:</div>
+              {s.steps.map((st,i)=><div key={i} style={{display:"flex",gap:14,marginBottom:i<s.steps.length-1?14:0,fontSize:15,lineHeight:1.6}}>
+                <div style={{width:28,height:28,borderRadius:"50%",background:C.accentMut,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontWeight:700,fontSize:13,color:C.accent}}>{i+1}</div>
+                <span style={{paddingTop:3}}>{st}</span>
+              </div>)}
+            </div>}
+
+            <div style={{marginTop:24,textAlign:"center"}}><Btn onClick={next}>Continue →</Btn></div>
+          </div>
+        </Sec>
+      </div>
+    );
+  }
+
+  // QUESTION STEPS
+  return(
+    <div style={{minHeight:"100vh",background:C.bg}}>
+      <TopBar/>
+      <Sec>
+        <Progress step={idx+1} total={tot}/>
+        <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:C.dim,marginBottom:28}}>
+          <span>Question {qNum} of {qTot}</span>
+          <span>{Math.round(((idx+1)/tot)*100)}%</span>
+        </div>
+        <div className="fu" key={idx}>
+          <Heading size="md" style={{marginBottom:20}}>{s.q}</Heading>
+
+          {/* VISUAL: Quiz question photos */}
+          {s.visual&&s.visual.type==="grid"&&(
+            <div style={{display:"grid",gridTemplateColumns:`repeat(${s.visual.photos.length},1fr)`,gap:10,marginBottom:20}}>
+              {s.visual.photos.map((ph,i)=>(
+                <PhotoPlaceholder key={i} type="neutral" height={100} description={ph.desc} photoNote={ph.note} style={{fontSize:10,padding:10}}/>
+              ))}
+            </div>
+          )}
+          {s.visual&&s.visual.type==="spectrum"&&(
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
+              {s.visual.photos.map((ph,i)=>(
+                <PhotoPlaceholder key={i} type={i===0?"before":i===2?"after":"neutral"} height={120} description={ph.desc} photoNote={ph.note} style={{fontSize:10,padding:10}}/>
+              ))}
+            </div>
+          )}
+          {s.visual&&s.visual.type==="single"&&(
+            <div style={{marginBottom:20}}>
+              <PhotoPlaceholder type="neutral" height={160} description={s.visual.photo.desc} photoNote={s.visual.photo.note}/>
+            </div>
+          )}
+
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            {s.opts.map(o=>(
+              <button key={o} onClick={()=>pick(o)}
+                style={{padding:"16px 20px",borderRadius:10,border:`1px solid ${C.border}`,background:C.bgCard,color:C.text,fontSize:15,fontFamily:"'Outfit',sans-serif",textAlign:"left",cursor:"pointer",transition:"all .2s",display:"flex",alignItems:"center",justifyContent:"space-between"}}
+                onMouseOver={e=>{e.currentTarget.style.borderColor=C.accent;e.currentTarget.style.background=C.accentMut}}
+                onMouseOut={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.background=C.bgCard}}>
+                {o}<Icon name="chevronRight" size={16} color={C.dim}/>
+              </button>
+            ))}
+          </div>
+        </div>
+      </Sec>
+    </div>
+  );
+};
+
+
+/* ═══════════════════════════════════════════
+   SALES PAGE — Full visual proof version
+   ═══════════════════════════════════════════ */
+const SalesPage=({onCTA})=>(
+  <div style={{minHeight:"100vh",background:C.bg}}>
+    <TopBar/>
+    <ProofTicker/>
+
+    {/* HERO */}
+    <Sec style={{paddingTop:48,paddingBottom:32}}>
+      <div className="fu" style={{textAlign:"center"}}>
+        <Badge>📸 For Men on Hinge, Bumble & Tinder</Badge>
+        <Heading size="xl" style={{margin:"24px 0 20px"}}>Your Profile Is Probably Losing Matches <span style={{color:C.accent}}>Before She Even Reads Your Prompts</span></Heading>
+        <p style={{fontSize:18,lineHeight:1.7,color:C.muted,maxWidth:560,margin:"0 auto 12px"}}>AI-generated dating photos that look like you on your best day — not a different guy. More matches. No awkward photoshoot. Ready in 24 hours.</p>
+        <p style={{fontSize:22,fontWeight:700,color:C.accent,marginBottom:12}}>Starting at just $39</p>
+        
+        {/* HERO PHOTO */}
+        <div style={{maxWidth:600,margin:"0 auto 24px"}}>
+          <PhotoPlaceholder type="after" height={280}
+            description="Hero image: 3-4 sample MatchFrame output photos arranged in an overlapping fan/collage. Show different scenarios — close-up, outdoor, social, dressed up. All clearly the same guy. Warm, natural, aspirational."
+            photoNote="This is the #1 most important image on the entire site. Invest heavily here."
+          />
+        </div>
+
+        <Btn size="lg" onClick={onCTA}>Upgrade My Photos Now →</Btn>
+        <p style={{fontSize:13,color:C.dim,marginTop:12}}><Icon name="shield" size={13} color={C.dim}/> Likeness Guarantee — look like you or your money back</p>
+        <div style={{marginTop:24}}><AvatarStrip/></div>
+      </div>
+    </Sec>
+
+    {/* BEFORE / AFTER GRID */}
+    <div style={{background:C.bgCard,borderTop:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`}}>
+      <Sec wide style={{paddingTop:48,paddingBottom:48}}>
+        <div style={{textAlign:"center",marginBottom:32}}>
+          <Heading size="md">Same Guy. Better First Impression.</Heading>
+          <p style={{color:C.muted,marginTop:12,fontSize:15,lineHeight:1.7}}>Real uploads on the left. MatchFrame output on the right. Subtle upgrades — not a new identity.</p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+          {/* B/A Pair 1: Close-up */}
+          <div style={{background:C.bg,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+              <PhotoPlaceholder type="before" height={200}
+                description="Close-up selfie: harsh bathroom light from above, shadows under eyes, slightly unflattering angle, blank expression"
+                photoNote="Real customer's original selfie — the 'before' close-up"
+              />
+              <PhotoPlaceholder type="after" height={200}
+                description="MatchFrame close-up: same guy, warm side lighting, slight smile, clean neutral background, confident but approachable"
+                photoNote="MatchFrame output — enhanced close-up, same person"
+              />
+            </div>
+            <p style={{textAlign:"center",fontSize:13,color:C.muted,marginTop:10}}>📷 <strong style={{color:C.text}}>First Photo Slot</strong> — The one that stops the scroll</p>
+          </div>
+          {/* B/A Pair 2: Lifestyle */}
+          <div style={{background:C.bg,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+              <PhotoPlaceholder type="before" height={200}
+                description="Blurry group photo from a party, hard to tell which one he is, dark, flash-lit, someone's arm blocking half the frame"
+                photoNote="Real customer's old group photo — unusable as a dating photo"
+              />
+              <PhotoPlaceholder type="after" height={200}
+                description="Outdoor lifestyle shot: same guy hiking a trail, natural sunlight, relaxed posture, slight smile, mountains or park behind him"
+                photoNote="MatchFrame output — outdoor/lifestyle photo, same person"
+              />
+            </div>
+            <p style={{textAlign:"center",fontSize:13,color:C.muted,marginTop:10}}>🏔️ <strong style={{color:C.text}}>Lifestyle Slot</strong> — Shows you have a life</p>
+          </div>
+          {/* B/A Pair 3: Full Body */}
+          <div style={{background:C.bg,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+              <PhotoPlaceholder type="before" height={200}
+                description="Gym mirror selfie: messy locker room background, phone covering face, unflattering overhead fluorescent lighting"
+                photoNote="Real customer's gym mirror selfie — bad full body example"
+              />
+              <PhotoPlaceholder type="after" height={200}
+                description="Full body shot: same guy in a well-fitted casual outfit, standing naturally on a city street or park, good posture, natural light"
+                photoNote="MatchFrame output — full body, well-dressed, natural setting"
+              />
+            </div>
+            <p style={{textAlign:"center",fontSize:13,color:C.muted,marginTop:10}}>👔 <strong style={{color:C.text}}>Full Body Slot</strong> — Answers 'what does he actually look like'</p>
+          </div>
+          {/* B/A Pair 4: Social */}
+          <div style={{background:C.bg,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+              <PhotoPlaceholder type="before" height={200}
+                description="Dark bar photo: red-eye flash, holding a drink awkwardly, half-closed eyes, sweaty"
+                photoNote="Real customer's bad bar photo — unusable social photo"
+              />
+              <PhotoPlaceholder type="after" height={200}
+                description="Social setting: same guy at a well-lit restaurant or rooftop, laughing naturally, looks like he belongs, warm tones"
+                photoNote="MatchFrame output — social/candid, same person, good energy"
+              />
+            </div>
+            <p style={{textAlign:"center",fontSize:13,color:C.muted,marginTop:10}}>🍷 <strong style={{color:C.text}}>Social Slot</strong> — Proves you're fun to be around</p>
+          </div>
+        </div>
+
+        <InlineProof
+          quote="I was terrified they'd look like someone else. They literally just look like me on a good day. My sister saw them and said 'where did you take these?' — she didn't know they were AI."
+          name="Alex M." age={30} handles="Will it look like me?" result="Undetectable"
+        />
+      </Sec>
+    </div>
+
+    {/* MECHANISM */}
+    <Sec>
+      <div style={{textAlign:"center",marginBottom:36}}>
+        <Badge>🎯 The Mechanism</Badge>
+        <Heading size="lg" style={{margin:"20px 0 12px"}}>Authenticity-Calibrated AI Photo System</Heading>
+        <p style={{color:C.muted,fontSize:15,lineHeight:1.7,maxWidth:560,margin:"0 auto"}}>Not generic AI headshots. Not over-polished corporate shots. Photos designed specifically for dating apps that preserve who you are.</p>
+      </div>
+      
+      {/* Mechanism comparison photo */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:28}}>
+        <div>
+          <PhotoPlaceholder type="before" height={220}
+            description="'The LinkedIn Look' — Generic AI headshot: glossy skin, corporate blazer, fake smile, solid blue/gray background. Screams 'AI generated.' Would never work on a dating app."
+            photoNote="Example of COMPETITOR AI output — overly polished, corporate, fake"
+          />
+          <p style={{textAlign:"center",fontSize:13,color:C.red,marginTop:8,fontWeight:600}}>❌ Generic AI — "The LinkedIn Look"</p>
+        </div>
+        <div>
+          <PhotoPlaceholder type="after" height={220}
+            description="'The MatchFrame Look' — Natural photo: real skin texture, casual outfit, coffee shop or park background, genuine expression. Looks like a friend with a great camera took it."
+            photoNote="Example of YOUR AI output — natural, dating-appropriate, authentic"
+          />
+          <p style={{textAlign:"center",fontSize:13,color:C.green,marginTop:8,fontWeight:600}}>✓ MatchFrame — "Your best day, not a different guy"</p>
+        </div>
+      </div>
+
+      <div style={{display:"grid",gap:16}}>
+        {[
+          {icon:"eye",title:"Identity Preservation",desc:"Maintains your actual facial features, skin tone, and build. She'll recognize you on the first date."},
+          {icon:"heart",title:"Hinge-Specific Optimization",desc:"Balances attractiveness with trust, warmth, and approachability. Not LinkedIn. Not thirst traps."},
+          {icon:"camera",title:"Lifestyle Variety",desc:"Confident close-ups, outdoor shots, social settings, full body. Everything Hinge's 6-photo layout needs."},
+          {icon:"clock",title:"24-Hour Turnaround",desc:"Upload tonight, wake up tomorrow with a profile that represents you. No scheduling."},
+        ].map(({icon,title,desc})=>(
+          <div key={title} style={{background:C.bgCard,borderRadius:12,padding:24,border:`1px solid ${C.border}`,display:"flex",gap:16}}>
+            <div style={{width:44,height:44,borderRadius:10,background:C.accentMut,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Icon name={icon} size={22} color={C.accent}/></div>
+            <div><h4 style={{fontWeight:600,fontSize:16,marginBottom:6}}>{title}</h4><p style={{fontSize:14,lineHeight:1.65,color:C.muted}}>{desc}</p></div>
+          </div>
+        ))}
+      </div>
+
+      <InlineProof
+        quote="Spent $800 on a photographer last year. I felt so stiff the whole time and the photos looked forced. MatchFrame cost me $39, took 10 minutes, and came out more natural than anything the photographer got."
+        name="Ryan T." age={27} handles="Why not a photographer?" result="Saved $760"
+      />
+    </Sec>
+
+    {/* HINGE PROFILE MOCKUP */}
+    <div style={{background:C.bgCard,borderTop:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`}}>
+      <Sec>
+        <div style={{textAlign:"center",marginBottom:32}}>
+          <Badge>💜 Built For Hinge</Badge>
+          <Heading size="md" style={{margin:"20px 0 12px"}}>See What Your Upgraded Profile Looks Like</Heading>
+          <p style={{color:C.muted,fontSize:15,lineHeight:1.7}}>Every MatchFrame pack fills all 6 Hinge photo slots with purpose.</p>
+        </div>
+        
+        {/* HINGE MOCKUP with photo slots */}
+        <div style={{background:"linear-gradient(135deg,#1E1A2E,#16132A)",borderRadius:16,padding:24,border:"1px solid rgba(75,59,124,.4)",maxWidth:420,margin:"0 auto"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
+            <div style={{width:24,height:24,borderRadius:6,background:"linear-gradient(135deg,#E4658C,#D44F7C)",display:"flex",alignItems:"center",justifyContent:"center"}}><Icon name="heart" size={14} color="#fff"/></div>
+            <span style={{fontWeight:600,fontSize:14,color:"#E4E0F0"}}>Hinge Profile Preview</span>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            {[
+              {label:"First Photo",sub:"Confident close-up, warm lighting",large:true,desc:"Your #1 MatchFrame photo: warm natural light, confident expression, clean background. This is the photo she sees first in the feed."},
+              {label:"Outdoor Shot",sub:"Hiking / travel / park",desc:"Outdoor lifestyle: natural light, relaxed body language, activity-based context"},
+              {label:"Social Setting",sub:"With friends / at event",desc:"Social proof photo: well-lit, laughing, clearly having fun, cropped for dating"},
+              {label:"Full Body",sub:"Well-dressed, good posture",desc:"Full body in a casual-sharp outfit, natural pose, clean urban or park setting"},
+              {label:"Interest/Hobby",sub:"Cooking / pets / sport",desc:"Show a genuine interest: cooking, with a dog, playing guitar, at a game"},
+              {label:"Casual/Candid",sub:"Relaxed and real",desc:"Candid-style: caught mid-laugh, natural moment, warm tones, approachable"},
+            ].map((s,i)=>(
+              <div key={i} style={{gridColumn:s.large?"1/-1":"auto"}}>
+                <PhotoPlaceholder type="hinge" height={s.large?200:130}
+                  description={s.desc}
+                  photoNote={`Hinge slot ${i+1}: ${s.label}`}
+                  style={{borderRadius:10}}
+                />
+                <p style={{textAlign:"center",fontSize:11,color:"rgba(255,255,255,.4)",marginTop:4}}>{s.label} — {s.sub}</p>
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop:16,background:"rgba(255,255,255,.05)",borderRadius:10,padding:"14px 16px"}}>
+            <div style={{fontSize:12,color:"rgba(255,255,255,.4)",marginBottom:6}}>Prompt: A life goal of mine is...</div>
+            <div style={{fontSize:14,color:"#E4E0F0",lineHeight:1.5}}>"To master the art of making the perfect espresso — and find someone who'll be my taste tester."</div>
+          </div>
+        </div>
+
+        <InlineProof
+          quote="First week with new photos I matched with 4 women I'd actually want to date. Every single one recognized me when we met up. No awkward 'you look different' moment."
+          name="David R." age={31} handles="Does it work on Hinge?" result="+4x quality matches"
+        />
+      </Sec>
+    </div>
+
+    {/* WHAT YOU GET — Photo category gallery */}
+    <Sec>
+      <div style={{textAlign:"center",marginBottom:32}}>
+        <Heading size="md">What's in Your Profile Pack</Heading>
+        <p style={{color:C.muted,marginTop:8,fontSize:15}}>8 photos across 4 categories — each designed for a specific purpose.</p>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+        {[
+          {label:"Confident Close-Up",desc:"Warm lighting, natural expression. Your #1 first-photo candidate.",color:"rgba(201,148,62,.08)",border:"rgba(201,148,62,.25)",
+           photo:"Close-up portrait: warm side light, slight smile, eyes engaging camera, natural skin texture, clean background"},
+          {label:"Outdoor / Travel",desc:"Adventure context without looking staged. Parks, cities, hikes.",color:"rgba(78,203,113,.06)",border:"rgba(78,203,113,.2)",
+           photo:"Outdoor portrait: trail, city street, or park. Natural sunlight, relaxed posture, lifestyle context"},
+          {label:"Social & Friends",desc:"Shows you have a life. Cropped for dating but clearly social.",color:"rgba(100,140,255,.06)",border:"rgba(100,140,255,.2)",
+           photo:"Social setting: restaurant, rooftop, gathering. Laughing, approachable energy, well-lit"},
+          {label:"Full Body",desc:"Well-dressed, natural posture. Eliminates the 'what does he look like' question.",color:"rgba(200,100,200,.06)",border:"rgba(200,100,200,.2)",
+           photo:"Full body: casual-sharp outfit, natural standing pose, urban or park background"},
+        ].map(({label,desc,color,border,photo})=>(
+          <div key={label} style={{background:color,borderRadius:12,border:`1px solid ${border}`,padding:16}}>
+            <PhotoPlaceholder type="after" height={160} description={photo} photoNote={`Category example: ${label}`}/>
+            <div style={{marginTop:12,textAlign:"center"}}>
+              <div style={{fontWeight:600,fontSize:15}}>{label}</div>
+              <p style={{fontSize:13,lineHeight:1.55,color:C.muted,marginTop:4}}>{desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p style={{textAlign:"center",fontSize:14,color:C.muted,marginTop:20}}>Plus a <strong style={{color:C.text}}>Photo Ranking Guide</strong> telling you which photo goes in which Hinge slot and why.</p>
+    </Sec>
+
+    {/* MATCH NOTIFICATIONS + STATS */}
+    <div style={{background:`linear-gradient(135deg,rgba(201,148,62,.04),rgba(201,148,62,.01))`,borderTop:`1px solid rgba(201,148,62,.15)`,borderBottom:`1px solid rgba(201,148,62,.15)`}}>
+      <Sec>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:40,alignItems:"center"}}>
+          <div>
+            <Heading size="md">This Is What Your Phone Looks Like After MatchFrame</Heading>
+            <p style={{color:C.muted,fontSize:15,lineHeight:1.7,marginTop:12,marginBottom:20}}>Better photos don't just get more matches — they get better matches.</p>
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              {[{stat:"3x",label:"average match increase in week 1"},{stat:"94%",label:"say friends couldn't tell"},{stat:"$39",label:"vs. $500–$1,000 for a photographer"}].map(({stat,label})=>(
+                <div key={label} style={{display:"flex",alignItems:"baseline",gap:10}}>
+                  <span style={{fontSize:24,fontWeight:800,color:C.accent}}>{stat}</span>
+                  <span style={{fontSize:14,color:C.muted}}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            {/* PHOTO: Phone with notification mockup */}
+            <PhotoPlaceholder type="result" height={300}
+              description="iPhone screenshot showing Hinge notification stack: 'Sarah liked your photo' · 'Emma sent you a rose' · 'You matched with Jessica' · 'Olivia sent a message' — 4+ notifications stacked, showing the outcome they want"
+              photoNote="Mock iPhone lock screen with Hinge match notifications — sell the dream outcome"
+            />
+          </div>
+        </div>
+      </Sec>
+    </div>
+
+    {/* MORE INLINE PROOF */}
+    <Sec>
+      <InlineProof quote="I was worried about the catfish thing. But on my first date she literally said 'you look just like your photos.' That's never happened before." name="Tom S." age={29} handles="Is this catfishing?" result="Date recognized him"/>
+      <InlineProof quote="Best $39 I ever spent. My last haircut cost more and did literally nothing for my dating life. This changed everything in a weekend." name="Chris L." age={26} handles="Is it worth $39?" result="Life-changing weekend"/>
+    </Sec>
+
+    {/* GUARANTEE */}
+    <div style={{background:`linear-gradient(135deg,rgba(201,148,62,.08),rgba(201,148,62,.02))`,borderTop:`1px solid rgba(201,148,62,.2)`,borderBottom:`1px solid rgba(201,148,62,.2)`}}>
+      <Sec style={{textAlign:"center"}}>
+        <Icon name="shield" size={40} color={C.accent}/>
+        <Heading size="md" style={{marginTop:16}}>The "Still Looks Like You" Guarantee</Heading>
+        <p style={{fontSize:16,lineHeight:1.7,color:C.muted,maxWidth:500,margin:"16px auto 0"}}>If your photos don't look recognizably like you, we'll redo them free or give you a full refund. No questions.</p>
+        <InlineProof quote="The guarantee made it a no-brainer. Figured worst case I get my money back. Didn't need it — the photos were spot-on." name="Jake W." age={33} handles="Can I trust this?" result="Didn't need the guarantee"/>
+      </Sec>
+    </div>
+
+    {/* HOW IT WORKS */}
+    <Sec>
+      <div style={{textAlign:"center",marginBottom:36}}>
+        <Heading size="lg">How It Works</Heading>
+        <p style={{color:C.muted,fontSize:15,marginTop:8}}>Three steps. No awkwardness.</p>
+      </div>
+      {[
+        {num:"01",title:"Upload Your Existing Photos",desc:"Send us 8–12 photos you already have. Selfies, group shots, candids — whatever's on your phone.",
+         photo:{desc:"Screenshot of the MatchFrame upload interface: clean drag-and-drop area with photo thumbnails being added",note:"Product UI screenshot — upload step"}},
+        {num:"02",title:"Tell Us Your Vibe",desc:"Quick questionnaire: outdoors guy? Urban professional? We match the style to who you actually are.",
+         photo:{desc:"Screenshot of the style preference selector: options for outdoor, urban, casual, dressed up, with example thumbnails for each",note:"Product UI screenshot — style selector"}},
+        {num:"03",title:"Get Your Photos in 24 Hours",desc:"8 dating-app-ready photos delivered to your inbox plus a Photo Ranking Guide for your Hinge layout.",
+         photo:{desc:"Screenshot of the delivered photo gallery: 8 photos in a clean grid, download buttons, with the ranking guide PDF below",note:"Product UI screenshot — delivery gallery"}},
+      ].map(({num,title,desc,photo})=>(
+        <div key={num} style={{display:"flex",gap:20,marginBottom:32}}>
+          <div style={{fontSize:42,fontWeight:800,color:C.accentMut,fontFamily:"'Playfair Display',serif",lineHeight:1,flexShrink:0,width:56}}>{num}</div>
+          <div style={{flex:1}}>
+            <h4 style={{fontWeight:600,fontSize:17,marginBottom:6}}>{title}</h4>
+            <p style={{fontSize:14,lineHeight:1.7,color:C.muted,marginBottom:12}}>{desc}</p>
+            <PhotoPlaceholder type="neutral" height={140} description={photo.desc} photoNote={photo.note}/>
+          </div>
+        </div>
+      ))}
+    </Sec>
+
+    {/* COMPARISON TABLE */}
+    <Sec>
+      <div style={{textAlign:"center",marginBottom:32}}><Heading size="md">Why MatchFrame vs. The Alternatives</Heading></div>
+      <div style={{background:C.bgCard,borderRadius:12,overflow:"hidden",border:`1px solid ${C.border}`}}>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:14}}>
+          <thead><tr style={{borderBottom:`1px solid ${C.border}`}}><th style={{padding:"14px 16px",textAlign:"left",color:C.dim,fontWeight:500}}></th><th style={{padding:"14px 16px",textAlign:"center",color:C.accent,fontWeight:700}}>MatchFrame</th><th style={{padding:"14px 16px",textAlign:"center",color:C.dim,fontWeight:500}}>Photographer</th><th style={{padding:"14px 16px",textAlign:"center",color:C.dim,fontWeight:500}}>Free AI</th></tr></thead>
+          <tbody>{[["Price","$39","$500–$1K","Free"],["Looks like you","✓","varies","✗"],["Dating-app optimized","✓","✗","✗"],["24-hour delivery","✓","✗","✓"],["No awkward posing","✓","✗","✓"],["Hinge ranking guide","✓","✗","✗"],["Likeness guarantee","✓","✗","✗"]].map(([l,...vs])=><tr key={l} style={{borderBottom:`1px solid ${C.border}`}}><td style={{padding:"12px 16px",fontWeight:500}}>{l}</td>{vs.map((v,i)=><td key={i} style={{padding:"12px 16px",textAlign:"center",color:v==="✓"?C.green:v==="✗"?C.dim:i===0?C.accent:C.muted,fontWeight:v==="✓"||i===0?700:400,fontSize:v==="✓"||v==="✗"?18:13}}>{v}</td>)}</tr>)}</tbody>
+        </table>
+      </div>
+    </Sec>
+
+    {/* FAQ */}
+    <div style={{background:C.bgCard,borderTop:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`}}>
+      <Sec>
+        <Heading size="md" style={{textAlign:"center",marginBottom:28}}>Frequently Asked Questions</Heading>
+        <FaqItem q="Will these actually look like me?" a="That's the entire point. Our system preserves your actual features, skin tone, and build. If they don't look like you, free redo or full refund."/>
+        <FaqItem q="Can women tell these are AI?" a="When done right, no. We optimize for natural lighting and realistic environments. No glossy over-polished AI headshot look."/>
+        <FaqItem q="Isn't this catfishing?" a="The opposite. Catfishing means looking like someone you're not. MatchFrame makes you look like yourself with better lighting and framing."/>
+        <FaqItem q="Why not hire a photographer?" a="You can — for $500–$1,000+, weeks of scheduling, and awkward posing. MatchFrame costs $39, takes 24 hours, done from your couch."/>
+        <FaqItem q="What if I don't like the results?" a="Likeness Guarantee: free redo or full refund within 14 days. No questions."/>
+        <FaqItem q="How many photos do I get?" a="Base Profile Pack: 8 photos across 4 categories. Upgrade packs available for 16 or 24."/>
+        <FaqItem q="How fast?" a="24–48 hours standard. Rush delivery (12 hours) available at checkout."/>
+        <FaqItem q="What if this only works for attractive guys?" a="It works because it shows the real you better — not because it makes you someone else. The problem was never how you look; it was how your photos represented you."/>
+      </Sec>
+    </div>
+
+    {/* FINAL CTA */}
+    <Sec style={{textAlign:"center",paddingBottom:80}}>
+      <Heading size="lg">Stop Being Underrated by Weak Photos</Heading>
+      <p style={{fontSize:16,lineHeight:1.7,color:C.muted,maxWidth:480,margin:"16px auto 8px"}}>Your photos are the movie trailer for the relationship. If the trailer's bad, she never presses play.</p>
+      <p style={{fontSize:20,fontWeight:700,color:C.accent,marginBottom:28}}>Fix it in 24 hours — starting at $39</p>
+      <Btn size="lg" onClick={onCTA}>Get My MatchFrame Photos →</Btn>
+      <div style={{display:"flex",justifyContent:"center",gap:24,marginTop:20,fontSize:13,color:C.dim,flexWrap:"wrap"}}>
+        <span><Icon name="shield" size={13} color={C.dim}/> Likeness Guarantee</span>
+        <span><Icon name="clock" size={13} color={C.dim}/> 24-Hour Delivery</span>
+        <span><Icon name="lock" size={13} color={C.dim}/> Secure Checkout</span>
+      </div>
+      <div style={{marginTop:28}}><AvatarStrip/></div>
+    </Sec>
+    <div style={{borderTop:`1px solid ${C.border}`,padding:24,textAlign:"center",fontSize:13,color:C.dim}}>© 2026 MatchFrame. All rights reserved.</div>
+  </div>
+);
+
+
+/* ═══════════════════════════════════════════
+   ORDER PAGE
+   ═══════════════════════════════════════════ */
+const OrderPage=({onComplete})=>{
+  const[sel,setSel]=useState(1);const[b1,sB1]=useState(false);const[b2,sB2]=useState(false);
+  const pks=[{l:"Profile Pack",ph:"8 photos",p:39,pp:"~$4.88"},{l:"Double Pack",ph:"16 photos",p:59,pp:"~$3.69",pop:true,sv:19},{l:"Ultimate Pack",ph:"24 photos",p:79,pp:"~$3.29",sv:38}];
+  const pk=pks[sel];const bmp=(b1?14:0)+(b2?19:0);const tot=pk.p+bmp;
+  return(
+    <div style={{minHeight:"100vh",background:C.bg}}>
+      <TopBar/>
+      <div style={{background:C.accentMut,padding:"10px 24px",textAlign:"center",fontSize:14,fontWeight:500}}><Icon name="clock" size={14} color={C.accent}/> Launch pricing ends in: <span style={{display:"inline-flex",marginLeft:8}}><Timer/></span></div>
+      <Sec style={{paddingTop:36}}>
+        <div style={{marginBottom:28}}><AvatarStrip/></div>
+        <div className="fu" style={{textAlign:"center",marginBottom:36}}>
+          <Heading size="lg">Choose Your Pack</Heading>
+          <p style={{color:C.muted,fontSize:15,marginTop:8}}>All packs include the Photo Ranking Guide for Hinge.</p>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:32}}>
+          {pks.map((p,i)=>(
+            <div key={i} onClick={()=>setSel(i)} style={{background:sel===i?C.accentMut:C.bgCard,border:`2px solid ${sel===i?C.accent:C.border}`,borderRadius:12,padding:"18px 20px",cursor:"pointer",transition:"all .2s",position:"relative"}}>
+              {p.pop&&<span style={{position:"absolute",top:-10,right:16,background:C.accent,color:C.bg,fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:100,textTransform:"uppercase",letterSpacing:".06em"}}>Best Value</span>}
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div style={{display:"flex",alignItems:"center",gap:14}}>
+                  <div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${sel===i?C.accent:C.dim}`,display:"flex",alignItems:"center",justifyContent:"center"}}>{sel===i&&<div style={{width:12,height:12,borderRadius:"50%",background:C.accent}}/>}</div>
+                  <div><div style={{fontWeight:600,fontSize:16}}>{p.l}</div><div style={{fontSize:13,color:C.muted,marginTop:2}}>{p.ph} · {p.pp}/photo</div></div>
+                </div>
+                <div style={{textAlign:"right"}}><div style={{fontSize:22,fontWeight:700,color:C.accent}}>${p.p}</div>{p.sv&&<div style={{fontSize:12,color:C.green}}>Save ${p.sv}</div>}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{marginBottom:32}}>
+          <h3 style={{fontWeight:600,fontSize:16,marginBottom:12,display:"flex",alignItems:"center",gap:8}}><Icon name="gift" size={18} color={C.accent}/> Add to your order:</h3>
+          {[{on:b1,fn:()=>sB1(!b1),t:"⚡ Rush Delivery — 12 Hours",pr:14,d:"Get your photos by tomorrow morning."},{on:b2,fn:()=>sB2(!b2),t:"🎯 Photo Selection Consultation",pr:19,d:"15-min async video review: which 6 photos to use and in what order."}].map(({on,fn,t,pr,d})=>(
+            <div key={t} onClick={fn} style={{background:on?"rgba(201,148,62,.1)":C.bgCard,border:`1px solid ${on?C.accent:C.border}`,borderRadius:10,padding:"16px 18px",cursor:"pointer",marginBottom:10,display:"flex",gap:14,alignItems:"flex-start"}}>
+              <div style={{width:22,height:22,borderRadius:6,border:`2px solid ${on?C.accent:C.dim}`,background:on?C.accent:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}>{on&&<Icon name="check" size={14} color={C.bg}/>}</div>
+              <div style={{flex:1}}><div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontWeight:600,fontSize:15}}>{t}</span><span style={{fontWeight:700,color:C.accent}}>+${pr}</span></div><p style={{fontSize:13,color:C.muted,marginTop:4}}>{d}</p></div>
+            </div>
+          ))}
+        </div>
+        <div style={{background:C.bgCard,borderRadius:12,border:`1px solid ${C.border}`,padding:24}}>
+          <h3 style={{fontWeight:600,fontSize:17,marginBottom:20}}>Payment Details</h3>
+          <div style={{display:"grid",gap:12}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>{["First Name","Last Name"].map(ph=><input key={ph} placeholder={ph} style={{padding:"12px 14px",borderRadius:8,border:`1px solid ${C.border}`,background:C.bg,color:C.text,fontSize:15,fontFamily:"'Outfit',sans-serif"}}/>)}</div>
+            <input placeholder="Email Address" style={{padding:"12px 14px",borderRadius:8,border:`1px solid ${C.border}`,background:C.bg,color:C.text,fontSize:15,fontFamily:"'Outfit',sans-serif"}}/>
+            <input placeholder="Card Number" style={{padding:"12px 14px",borderRadius:8,border:`1px solid ${C.border}`,background:C.bg,color:C.text,fontSize:15,fontFamily:"'Outfit',sans-serif"}}/>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>{["MM / YY","CVV"].map(ph=><input key={ph} placeholder={ph} style={{padding:"12px 14px",borderRadius:8,border:`1px solid ${C.border}`,background:C.bg,color:C.text,fontSize:15,fontFamily:"'Outfit',sans-serif"}}/>)}</div>
+          </div>
+          <div style={{background:C.bg,borderRadius:10,padding:18,margin:"20px 0",border:`1px solid ${C.border}`}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:14,color:C.muted}}><span>{pk.l} — {pk.ph}</span><span>${pk.p}</span></div>
+            {b1&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:14,color:C.muted}}><span>Rush Delivery</span><span>$14</span></div>}
+            {b2&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:14,color:C.muted}}><span>Photo Consultation</span><span>$19</span></div>}
+            <div style={{borderTop:`1px solid ${C.border}`,paddingTop:10,marginTop:8,display:"flex",justifyContent:"space-between",fontSize:18,fontWeight:700}}><span>Total</span><span style={{color:C.accent}}>${tot}</span></div>
+          </div>
+          <Btn full size="lg" onClick={onComplete}><Icon name="lock" size={18} color={C.bg}/> Complete My Order — ${tot}</Btn>
+          <div style={{display:"flex",justifyContent:"center",gap:20,marginTop:16,fontSize:12,color:C.dim}}><span>🔒 Likeness Guarantee</span><span>🔒 256-bit SSL</span></div>
+        </div>
+      </Sec>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════ OTOs ═══════════════════════════════════════════ */
+const OTO1=({onAccept,onDecline})=><div style={{minHeight:"100vh",background:C.bg}}><TopBar/><div style={{background:C.green,padding:"12px 24px",textAlign:"center",fontSize:15,fontWeight:600,color:C.bg}}>✓ Order confirmed! But wait — it's not complete yet.</div><Sec style={{textAlign:"center"}}><div className="fu"><Badge>⚡ One-Time Offer</Badge><Heading size="lg" style={{margin:"24px 0 16px"}}>Upgrade to the <span style={{color:C.accent}}>Hinge Domination Pack</span></Heading><p style={{fontSize:16,lineHeight:1.7,color:C.muted,maxWidth:540,margin:"0 auto 32px"}}>Your Profile Pack gives you a strong foundation. The Domination Pack gives you the full arsenal.</p><div style={{background:C.bgCard,borderRadius:16,border:`1px solid rgba(201,148,62,.3)`,padding:28,textAlign:"left",marginBottom:28}}><h3 style={{fontWeight:700,fontSize:20,marginBottom:18,textAlign:"center"}}>What You Get:</h3>{["10 additional premium photos — travel, pets, social, athletic","Priority 12-hour turnaround","Before/after sheet: which old photos to replace and why","Second-round revision included"].map(it=><div key={it} style={{display:"flex",gap:12,marginBottom:14,fontSize:15,lineHeight:1.6}}><Icon name="check" size={20} color={C.green}/><span>{it}</span></div>)}<div style={{marginTop:20,padding:18,background:C.bg,borderRadius:10,textAlign:"center"}}><div style={{fontSize:14,color:C.dim,textDecoration:"line-through"}}>Regular: $99</div><div style={{fontSize:36,fontWeight:800,color:C.accent,margin:"4px 0"}}>$49</div><div style={{fontSize:14,color:C.green}}>Save $50 — today only</div></div></div><Btn full size="lg" onClick={onAccept}>Add Domination Pack — $49 →</Btn><div style={{marginTop:16}}><button onClick={onDecline} style={{background:"none",border:"none",color:C.dim,fontSize:14,cursor:"pointer",fontFamily:"'Outfit',sans-serif",textDecoration:"underline"}}>No thanks, skip this</button></div></div></Sec></div>;
+const OTO1D=({onAccept,onDecline})=><div style={{minHeight:"100vh",background:C.bg}}><TopBar/><Sec style={{textAlign:"center"}}><div className="fu"><Heading size="md">How About a Lighter Version?</Heading><p style={{fontSize:16,lineHeight:1.7,color:C.muted,maxWidth:500,margin:"16px auto 28px"}}>Slimmed-down version at nearly half:</p><div style={{background:C.bgCard,borderRadius:12,border:`1px solid ${C.border}`,padding:24,textAlign:"left",marginBottom:24}}>{["6 additional premium photos","Standard 24-hour turnaround","Before/after comparison sheet"].map(it=><div key={it} style={{display:"flex",gap:10,marginBottom:12,fontSize:15}}><Icon name="check" size={18} color={C.green}/>{it}</div>)}<div style={{textAlign:"center",marginTop:16}}><div style={{fontSize:14,color:C.dim,textDecoration:"line-through"}}>$49</div><div style={{fontSize:32,fontWeight:800,color:C.accent}}>$29</div></div></div><Btn full size="lg" onClick={onAccept}>Add Lite Pack — $29 →</Btn><div style={{marginTop:16}}><button onClick={onDecline} style={{background:"none",border:"none",color:C.dim,fontSize:14,cursor:"pointer",fontFamily:"'Outfit',sans-serif",textDecoration:"underline"}}>No thanks, continue</button></div></div></Sec></div>;
+const OTO2=({onAccept,onDecline})=><div style={{minHeight:"100vh",background:C.bg}}><TopBar/><Sec style={{textAlign:"center"}}><div className="fu"><Badge>💬 Final Upgrade</Badge><Heading size="lg" style={{margin:"24px 0 16px"}}>You've Got the Photos. <span style={{color:C.accent}}>Now Make Your Prompts Match.</span></Heading><p style={{fontSize:16,lineHeight:1.7,color:C.muted,maxWidth:540,margin:"0 auto 28px"}}>Great photos stop her scrolling. Great prompts get her to message first.</p><div style={{background:C.bgCard,borderRadius:16,border:`1px solid ${C.border}`,padding:28,textAlign:"left",marginBottom:28}}><h3 style={{fontWeight:700,fontSize:18,marginBottom:16,textAlign:"center"}}>Profile Prompt Optimization</h3>{["6 AI-written Hinge prompts tailored to you","Strategy brief: pair prompts with photos","Ready-to-paste — copy, paste, done","Written in your voice, not generic advice"].map(it=><div key={it} style={{display:"flex",gap:12,marginBottom:12,fontSize:15,lineHeight:1.6}}><Icon name="check" size={18} color={C.green}/>{it}</div>)}<div style={{marginTop:20,padding:16,background:C.bg,borderRadius:10,textAlign:"center"}}><div style={{fontSize:32,fontWeight:800,color:C.accent}}>$27</div><div style={{fontSize:14,color:C.muted}}>One-time add-on</div></div></div><Btn full size="lg" onClick={onAccept}>Add Prompts — $27 →</Btn><div style={{marginTop:16}}><button onClick={onDecline} style={{background:"none",border:"none",color:C.dim,fontSize:14,cursor:"pointer",fontFamily:"'Outfit',sans-serif",textDecoration:"underline"}}>No thanks, just photos</button></div></div></Sec></div>;
+const OTO2D=({onAccept,onDecline})=><div style={{minHeight:"100vh",background:C.bg}}><TopBar/><Sec style={{textAlign:"center"}}><div className="fu"><Heading size="md">Just the Templates?</Heading><p style={{fontSize:16,lineHeight:1.7,color:C.muted,maxWidth:500,margin:"16px auto 28px"}}>Best-performing prompt templates to customize yourself.</p><div style={{background:C.bgCard,borderRadius:12,border:`1px solid ${C.border}`,padding:24,textAlign:"left",marginBottom:24}}>{["12 high-response Hinge prompt templates","Fill-in-the-blank — 5 minutes","Categorized: witty, sincere, adventurous"].map(it=><div key={it} style={{display:"flex",gap:10,marginBottom:12,fontSize:15}}><Icon name="check" size={18} color={C.green}/>{it}</div>)}<div style={{textAlign:"center",marginTop:16}}><div style={{fontSize:32,fontWeight:800,color:C.accent}}>$14</div></div></div><Btn full size="lg" onClick={onAccept}>Add Templates — $14 →</Btn><div style={{marginTop:16}}><button onClick={onDecline} style={{background:"none",border:"none",color:C.dim,fontSize:14,cursor:"pointer",fontFamily:"'Outfit',sans-serif",textDecoration:"underline"}}>No thanks, take me to my order</button></div></div></Sec></div>;
+
+/* ═══════════════════════════════════════════ THANK YOU ═══════════════════════════════════════════ */
+const Thanks=()=><div style={{minHeight:"100vh",background:C.bg}}><TopBar/><Sec style={{textAlign:"center"}}><div className="fu"><div style={{width:72,height:72,borderRadius:"50%",background:"rgba(78,203,113,.15)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 24px"}}><Icon name="check" size={36} color={C.green}/></div><Heading size="lg">You're All Set. <span style={{color:C.accent}}>Your Upgrade Is on the Way.</span></Heading><p style={{fontSize:16,lineHeight:1.7,color:C.muted,maxWidth:520,margin:"16px auto 36px"}}>Here's what happens next:</p><div style={{textAlign:"left",maxWidth:480,margin:"0 auto"}}>{[{n:"1",t:"Check your email",d:"Upload link arrives within 5 minutes. Send us your 8–12 existing photos."},{n:"2",t:"We get to work",d:"AI generation + human QA review for authenticity, likeness, and dating-app fit."},{n:"3",t:"Your photos arrive",d:"Within 24 hours (or 12 with Rush), private gallery link with full set + ranking guide."},{n:"4",t:"Update your profile",d:"Swap in new photos using the guide. Watch matches roll in."}].map(({n,t,d})=><div key={n} style={{display:"flex",gap:16,marginBottom:24}}><div style={{width:36,height:36,borderRadius:"50%",background:C.accentMut,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontWeight:700,color:C.accent}}>{n}</div><div><h4 style={{fontWeight:600,fontSize:16,marginBottom:4}}>{t}</h4><p style={{fontSize:14,lineHeight:1.65,color:C.muted}}>{d}</p></div></div>)}</div><Divider/><div style={{background:C.bgCard,borderRadius:12,border:`1px solid ${C.border}`,padding:24}}><h3 style={{fontWeight:600,fontSize:17,marginBottom:12}}>While you wait...</h3><p style={{fontSize:14,lineHeight:1.7,color:C.muted}}>Gather your best existing photos. Good lighting, face visible — even older ones work. More variety = better results.</p></div><p style={{marginTop:32,fontSize:14,color:C.dim}}>Questions? Reply to your confirmation email.</p></div></Sec></div>;
+
+/* ═══════════════════════════════════════════ ROUTER ═══════════════════════════════════════════ */
+function App(){
+  const[p,sP]=useState("quiz");
+  const go=x=>{sP(x);window.scrollTo({top:0,behavior:"instant"})};
+  return(
+    <>
+      {p==="quiz"&&<QuizPage onComplete={()=>go("sales")}/>}
+      {p==="sales"&&<SalesPage onCTA={()=>go("order")}/>}
+      {p==="order"&&<OrderPage onComplete={()=>go("oto1")}/>}
+      {p==="oto1"&&<OTO1 onAccept={()=>go("oto2")} onDecline={()=>go("oto1d")}/>}
+      {p==="oto1d"&&<OTO1D onAccept={()=>go("oto2")} onDecline={()=>go("oto2")}/>}
+      {p==="oto2"&&<OTO2 onAccept={()=>go("thanks")} onDecline={()=>go("oto2d")}/>}
+      {p==="oto2d"&&<OTO2D onAccept={()=>go("thanks")} onDecline={()=>go("thanks")}/>}
+      {p==="thanks"&&<Thanks/>}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
