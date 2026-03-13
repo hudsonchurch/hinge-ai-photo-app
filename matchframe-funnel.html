@@ -349,12 +349,12 @@ const QuizPage=({onComplete})=>{
 
                 <div style={{height:160,border:`1px solid ${C.border}`,borderRadius:10,background:"linear-gradient(135deg,rgba(232,72,85,.08),rgba(232,72,85,.03))",padding:"14px 12px",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
                   <div style={{fontSize:11,fontWeight:700,letterSpacing:".06em",textTransform:"uppercase",color:C.red}}>Rejections happen fast</div>
-                  <div style={{display:"flex",alignItems:"flex-end",gap:10,height:90}}>
-                    <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
+                  <div style={{display:"flex",alignItems:"flex-end",justifyContent:"center",gap:4,height:90}}>
+                    <div style={{width:52,display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
                       <div style={{width:"100%",maxWidth:44,height:66,background:"rgba(232,72,85,.7)",borderRadius:"6px 6px 0 0"}}></div>
                       <span style={{fontSize:10,color:C.muted}}>Under 2s</span>
                     </div>
-                    <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
+                    <div style={{width:52,display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
                       <div style={{width:"100%",maxWidth:44,height:18,background:"rgba(255,255,255,.2)",borderRadius:"6px 6px 0 0"}}></div>
                       <span style={{fontSize:10,color:C.muted}}>After 2s</span>
                     </div>
