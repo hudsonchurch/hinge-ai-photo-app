@@ -285,7 +285,7 @@ const QuizPage=({onComplete})=>{
             <p style={{color:C.muted,fontSize:16,lineHeight:1.7,marginBottom:8}}>But the good news: this is the single easiest thing to fix on your entire profile.</p>
             
             <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,maxWidth:420,margin:"24px auto"}}>
-              {[1,2,3,4,5,6].map(n=><img key={n} src={`./media/proof-${n}.jpg`} alt={`Proof ${n}`} style={{width:"100%",aspectRatio:"1/1",objectFit:"cover",borderRadius:10,border:`1px solid ${C.border}`}}/>)}
+              {["proof-1.jpg","proof-2.jpg","proof-3.jpg","proof-4.jpg","proof-5.jpg","proof-6.JPG"].map((f,i)=><img key={f} src={`./media/${f}`} alt={`Proof ${i+1}`} style={{width:"100%",aspectRatio:"1/1",objectFit:"cover",borderRadius:10,border:`1px solid ${C.border}`}}/>)}
             </div>
 
             <p style={{color:C.muted,fontSize:15,lineHeight:1.7,marginBottom:24}}>Enter your email to see your personalized improvement plan.</p>
