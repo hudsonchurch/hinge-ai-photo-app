@@ -362,7 +362,7 @@ const QuizPage=({onComplete})=>{
                 ))}
               </div>
             )}
-            {s.visual&&s.visual.type==="process"&&(
+            {s.visual&&s.visual.type==="process"&&s.id!=="diff"&&(
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,margin:"20px 0"}}>
                 {s.visual.photos.map((ph,i)=>(
                   <PhotoPlaceholder key={i} type="neutral" height={150} description={ph.desc} photoNote={ph.note} style={{fontSize:11}}/>
