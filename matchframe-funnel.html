@@ -241,12 +241,9 @@ const STEPS=[
   {type:"i",id:"proof",title:"You're not alone.",
    body:["Over 2,400 men have already upgraded their dating profiles using this system. Here's what they consistently report:"],
    testimonials:[
-     {quote:"My matches tripled in the first week. And the girls I'm matching with now are actually my type.",name:"Jake",age:29,tag:"3x matches in 7 days",
-      photo:{desc:"Before/after: Jake's old blurry selfie vs his MatchFrame close-up with warm lighting",note:"Real customer before/after thumbnail"}},
-     {quote:"I was skeptical about AI photos but these literally just look like me on a good day. My buddy didn't even realize they were AI.",name:"Marcus",age:32,tag:"Undetectable",
-      photo:{desc:"Marcus's MatchFrame photo side-by-side with a real candid photo of him - they look the same",note:"Real customer photo proving likeness"}},
-     {quote:"Way better than the $800 photographer I tried last year. And it took 10 minutes from my couch.",name:"Ryan",age:27,tag:"Better than $800 shoot",
-      photo:{desc:"Ryan's stiff photographer photo vs his natural MatchFrame output",note:"Photographer vs MatchFrame comparison"}},
+     {quote:"My matches tripled in the first week. And the girls I'm matching with now are actually my type.",name:"Jake",age:29,tag:"3x matches in 7 days",avatar:"./media/profilepic%20(1).jpg"},
+     {quote:"I was skeptical about AI photos but these literally just look like me on a good day. My buddy didn't even realize they were AI.",name:"Marcus",age:32,tag:"Undetectable",avatar:"./media/profilepic%20(2).jpg"},
+     {quote:"Way better than the $800 photographer I tried last year. And it took 10 minutes from my couch.",name:"Ryan",age:27,tag:"Better than $800 shoot",avatar:"./media/profilepic%20(3).jpg"},
    ]
   },
   // Step 10
@@ -373,24 +370,14 @@ const QuizPage=({onComplete})=>{
               </div>
             )}
 
-            {/* Testimonials with photo thumbnails */}
+            {/* Testimonials */}
             {s.testimonials&&<div style={{marginTop:20}}>
               {s.testimonials.map((t,i)=>(
                 <div key={i} style={{background:C.bg,borderRadius:10,padding:"16px 18px",marginBottom:12,border:`1px solid ${C.border}`}}>
-                  <div style={{display:"flex",gap:14}}>
-                    {/* PHOTO: Testimonial thumbnail */}
-                    {t.photo&&(
-                      <div style={{width:80,flexShrink:0}}>
-                        <PhotoPlaceholder type="after" height={80} description={t.photo.desc} photoNote={t.photo.note} style={{fontSize:9,padding:8}}/>
-                      </div>
-                    )}
-                    <div style={{flex:1}}>
-                      <p style={{fontSize:14,lineHeight:1.65,fontStyle:"italic",marginBottom:10}}>"{t.quote}"</p>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                        <span style={{fontWeight:600,fontSize:13}}>{t.name}, {t.age}</span>
-                        <span style={{fontSize:12,color:C.green,fontWeight:600,background:"rgba(78,203,113,.1)",padding:"3px 10px",borderRadius:100}}>{t.tag}</span>
-                      </div>
-                    </div>
+                  <p style={{fontSize:14,lineHeight:1.65,fontStyle:"italic",marginBottom:10}}>"{t.quote}"</p>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <span style={{display:"inline-flex",alignItems:"center",gap:8,fontWeight:600,fontSize:13}}>{t.avatar&&<img src={t.avatar} alt={t.name} style={{width:28,height:28,borderRadius:"50%",objectFit:"cover",border:`1px solid ${C.border}`}}/>}{t.name}, {t.age}</span>
+                    <span style={{fontSize:12,color:C.green,fontWeight:600,background:"rgba(78,203,113,.1)",padding:"3px 10px",borderRadius:100}}>{t.tag}</span>
                   </div>
                 </div>
               ))}
