@@ -231,8 +231,8 @@ const STEPS=[
   {type:"i",id:"mech",title:"Here's why nothing else has worked:",
    body:["Selfies flatten how you actually look. Friends don't know angles or lighting. Photographers cost $500–$1,000 and the results still feel stiff. And most AI photo tools? They make you look like a different person entirely.","The fix isn't \"better pictures.\" It's photos that show **the real you** - with the lighting, framing, and confidence that match how you actually come across in person.","That's what a new category of authenticity-first AI photo tools are doing: preserving your real features while upgrading the presentation. No studio. No awkward posing. And the results still look like you."],
    visual:{type:"comparison",photos:[
-     {type:"before",desc:"Generic AI headshot: glossy, over-smooth skin, dead eyes, corporate background. Obviously AI.",note:"Example of what BAD AI photos look like - the 'LinkedIn look'"},
-     {type:"after",desc:"MatchFrame-style output: natural skin, warm light, casual setting, genuine expression. Looks like a friend took it.",note:"Example of what GOOD AI photos look like - natural and dating-appropriate"},
+     {type:"before",src:"./media/bad selfie.jpg",desc:"Bad selfie example"},
+     {type:"after",src:"./media/good photo.png",desc:"Good photo example"},
    ]}
   },
   // Step 8
@@ -361,7 +361,7 @@ const QuizPage=({onComplete})=>{
             {s.visual&&s.visual.type==="comparison"&&(
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,margin:"20px 0"}}>
                 {s.visual.photos.map((ph,i)=>(
-                  <PhotoPlaceholder key={i} type={ph.type} height={200} description={ph.desc} photoNote={ph.note}/>
+                  <PhotoPlaceholder key={i} type={ph.type} height={200} description={ph.desc} photoNote={ph.note} src={ph.src} showLabel={s.id!=="mech"} objectFit="cover"/>
                 ))}
               </div>
             )}
