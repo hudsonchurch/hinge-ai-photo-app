@@ -429,6 +429,13 @@ const QuizPage=({onComplete})=>{
         <div className="fu" key={idx}>
           <Heading size="md" style={{marginBottom:20}}>{s.q}</Heading>
 
+          {s.id==="matches"&&(
+            <div style={{display:"flex",justifyContent:"center",alignItems:"flex-end",gap:16,marginBottom:20}}>
+              <img src="media/photoshop.png" alt="Photoshop" style={{width:84,height:84,objectFit:"contain",opacity:.95}}/>
+              <span style={{fontSize:68,fontWeight:800,lineHeight:1,color:C.accent,textShadow:"0 0 24px rgba(201,148,62,.25)"}}>?</span>
+            </div>
+          )}
+
           {/* VISUAL: Quiz question photos */}
           {s.visual&&s.visual.type==="grid"&&(
             <div style={{display:"grid",gridTemplateColumns:`repeat(${s.visual.photos.length},1fr)`,gap:s.id==="app"?4:10,marginBottom:20,maxWidth:s.id==="app"?180:"none",marginInline:s.id==="app"?"auto":undefined}}>
