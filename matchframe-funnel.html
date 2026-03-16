@@ -314,7 +314,7 @@ const QuizPage=({onComplete})=>{
             
             {/* VISUAL: Photos for this insight slide */}
             {s.visual&&s.visual.type==="stat"&&(
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,margin:"20px 0 20px -14px"}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,margin:"20px 0 20px -36px"}}>
                 <PhotoPlaceholder
                   type="neutral"
                   height={160}
@@ -350,9 +350,9 @@ const QuizPage=({onComplete})=>{
               </div>
             )}
             {s.visual&&s.visual.type==="process"&&s.id!=="diff"&&(
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,margin:"20px 0"}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,margin:"20px 0"}}>
                 {s.visual.photos.map((ph,i)=>(
-                  <PhotoPlaceholder key={i} type="neutral" height={150} description={ph.desc} photoNote={ph.note} style={{fontSize:11}}/>
+                  <PhotoPlaceholder key={i} type="neutral" height={190} description={ph.desc} photoNote={ph.note} style={{fontSize:11,borderRadius:16,overflow:"hidden"}}/>
                 ))}
               </div>
             )}
@@ -414,7 +414,7 @@ const QuizPage=({onComplete})=>{
                   <PhotoPlaceholder
                     key={i}
                     type="neutral"
-                    height={isAppStep ? 82 : 100}
+                    height={isAppStep ? 96 : 100}
                     src={isAppStep && i===0 ? "./media/hinge%20screenshot.jpg" : undefined}
                     description={ph.desc}
                     photoNote={ph.note}
@@ -920,6 +920,10 @@ ipt>
 </html>
 dy>
 </html>
+ipt>
+</body>
+</html>
+l>
 ipt>
 </body>
 </html>
