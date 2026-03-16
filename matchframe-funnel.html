@@ -415,11 +415,14 @@ const QuizPage=({onComplete})=>{
                     key={i}
                     type="neutral"
                     height={isAppStep ? 82 : 100}
+                    src={isAppStep && i===0 ? "./media/hinge%20screenshot.jpg" : undefined}
                     description={ph.desc}
                     photoNote={ph.note}
                     showLabel={!isAppStep}
+                    objectFit={isAppStep ? "cover" : "cover"}
+                    objectPosition={isAppStep ? (i===0 ? "center 35%" : "center") : "center"}
                     style={isAppStep
-                      ? {fontSize:10,padding:0,aspectRatio:"1 / 1",maxWidth:82,margin:"0 auto",borderRadius:12,overflow:"hidden"}
+                      ? {fontSize:10,padding:0,aspectRatio:"1 / 1",maxWidth:82,margin:"0 auto",borderRadius:14,overflow:"hidden"}
                       : {fontSize:10,padding:10}}
                   />
                 );
