@@ -638,19 +638,20 @@ const SalesPage=({onCTA})=>(
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
             {[
-              {label:"First Photo",sub:"Confident close-up, warm lighting",large:true,desc:"Your #1 MatchFrame photo: warm natural light, confident expression, clean background. This is the photo she sees first in the feed."},
-              {label:"Outdoor Shot",sub:"Hiking / travel / park",desc:"Outdoor lifestyle: natural light, relaxed body language, activity-based context"},
-              {label:"Social Setting",sub:"With friends / at event",desc:"Social proof photo: well-lit, laughing, clearly having fun, cropped for dating"},
-              {label:"Full Body",sub:"Well-dressed, good posture",desc:"Full body in a casual-sharp outfit, natural pose, clean urban or park setting"},
-              {label:"Interest/Hobby",sub:"Cooking / pets / sport",desc:"Show a genuine interest: cooking, with a dog, playing guitar, at a game"},
-              {label:"Casual/Candid",sub:"Relaxed and real",desc:"Candid-style: caught mid-laugh, natural moment, warm tones, approachable"},
+              {label:"First Photo",sub:"Confident close-up, warm lighting",large:true,desc:"Your #1 MatchFrame photo: warm natural light, confident expression, clean background. This is the photo she sees first in the feed.",src:"./media/1st%20same%20guy%20photo.png"},
+              {label:"Outdoor Shot",sub:"Hiking / travel / park",desc:"Outdoor lifestyle: natural light, relaxed body language, activity-based context",src:"./media/lifestyle%20example%20photo.png"},
+              {label:"Social Setting",sub:"With friends / at event",desc:"Social proof photo: well-lit, laughing, clearly having fun, cropped for dating",src:"./media/the%20social%20shot%20example.png"},
+              {label:"Full Body",sub:"Well-dressed, good posture",desc:"Full body in a casual-sharp outfit, natural pose, clean urban or park setting",src:"./media/full%20body%20ecxample.png"},
+              {label:"Interest/Hobby",sub:"Cooking / pets / sport",desc:"Show a genuine interest: cooking, with a dog, playing guitar, at a game",src:"./media/great%20dating%20photo%20example.JPG"},
+              {label:"Casual/Candid",sub:"Relaxed and real",desc:"Candid-style: caught mid-laugh, natural moment, warm tones, approachable",src:"./media/good%20photo.png"},
             ].map((s,i)=>(
               <div key={i} style={{gridColumn:s.large?"1/-1":"auto"}}>
                 <PhotoPlaceholder type="hinge" height={s.large?200:130}
+                  src={s.src}
                   description={s.desc}
                   photoNote={`Hinge slot ${i+1}: ${s.label}`}
-                  objectFit="contain"
-                  style={{borderRadius:10,padding:6}}
+                  objectFit="cover"
+                  style={{borderRadius:10,padding:0}}
                 />
                 <p style={{textAlign:"center",fontSize:11,color:"rgba(255,255,255,.4)",marginTop:4}}>{s.label} - {s.sub}</p>
               </div>
