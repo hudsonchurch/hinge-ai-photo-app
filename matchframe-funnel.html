@@ -410,21 +410,25 @@ const QuizPage=({onComplete})=>{
             <div style={{display:"grid",gridTemplateColumns:`repeat(${s.visual.photos.length},1fr)`,gap:s.id==="app"?8:10,marginBottom:20,maxWidth:s.id==="app"?240:"none",marginInline:s.id==="app"?"auto":undefined}}>
               {s.visual.photos.map((ph,i)=>{
                 const isAppStep = s.id === "app";
+                if (isAppStep) {
+                  const appSrc = i===0 ? "./media/hinge%20screenshot.jpg" : "./media/bumble%20ikon.png";
+                  return (
+                    <div key={i} style={{aspectRatio:"1 / 1",maxWidth:118,margin:"0 auto",borderRadius:22,overflow:"hidden",background:"transparent"}}>
+                      <img src={appSrc} alt={i===0?"Hinge":"Bumble"} style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:i===0?"center 84%":"center",display:"block",borderRadius:22,transform:i===0?"scale(1.62)":"none"}}/>
+                    </div>
+                  );
+                }
                 return (
                   <PhotoPlaceholder
                     key={i}
                     type="neutral"
-                    height={isAppStep ? 96 : 100}
-                    src={isAppStep && i===0 ? "./media/hinge%20screenshot.jpg" : undefined}
+                    height={100}
                     description={ph.desc}
                     photoNote={ph.note}
-                    showLabel={!isAppStep}
-                    objectFit={isAppStep ? "cover" : "cover"}
-                    objectPosition={isAppStep ? (i===0 ? "center 82%" : "center") : "center"}
-                    imgStyle={isAppStep && i===0 ? {transform:"scale(1.56)",clipPath:"inset(0 round 22px)"} : undefined}
-                    style={isAppStep
-                      ? {fontSize:10,padding:0,aspectRatio:"1 / 1",maxWidth:110,margin:"0 auto",borderRadius:22,overflow:"hidden",background:"transparent"}
-                      : {fontSize:10,padding:10}}
+                    showLabel={true}
+                    objectFit="cover"
+                    objectPosition="center"
+                    style={{fontSize:10,padding:10}}
                   />
                 );
               })}
@@ -531,14 +535,12 @@ const SalesPage=({onCTA})=>(
           </div>
           {/* B/A Pair 2: Lifestyle */}
           <div style={{background:C.bg,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-              <PhotoPlaceholder type="before" height={200}
-                description="Blurry group photo from a party, hard to tell which one he is, dark, flash-lit, someone's arm blocking half the frame"
-                photoNote="Real customer's old group photo - unusable as a dating photo"
-              />
-              <PhotoPlaceholder type="after" height={200}
-                description="Outdoor lifestyle shot: same guy hiking a trail, natural sunlight, relaxed posture, slight smile, mountains or park behind him"
-                photoNote="MatchFrame output - outdoor/lifestyle photo, same person"
+            <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
+              <PhotoPlaceholder type="after" height={240}
+                src="./media/lifestyle%20example%20photo.png"
+                description="Lifestyle before/after combined example"
+                photoNote="Single image containing before and after"
+                style={{borderRadius:18,overflow:"hidden"}}
               />
             </div>
             <p style={{textAlign:"center",fontSize:13,color:C.muted,marginTop:10}}>🏔️ <strong style={{color:C.text}}>Lifestyle Slot</strong> - Shows you have a life</p>
