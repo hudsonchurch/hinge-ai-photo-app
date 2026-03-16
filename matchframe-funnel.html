@@ -123,6 +123,9 @@ const PhotoPlaceholder=({type="before",height=200,description,photoNote,style={}
   return(
     <div className="photo-placeholder" style={{background:s.bg,height,padding:0,...style}}>
       <img src={imageSrc} alt={description||"MatchFrame visual"} style={{width:"100%",height:"100%",objectFit,objectPosition,display:"block"}}/>
+      {overlayText && (
+        <span style={{position:"absolute",bottom:8,left:8,right:8,padding:"6px 8px",borderRadius:8,background:"rgba(0,0,0,.62)",color:"#fff",fontSize:11,fontWeight:700,letterSpacing:".06em",textTransform:"uppercase",textAlign:"center"}}>{overlayText}</span>
+      )}
     </div>
   );
 };
