@@ -433,13 +433,14 @@ const QuizPage=({onComplete})=>{
                     key={i}
                     type={i===0?"before":i===2?"after":"neutral"}
                     height={isRating ? 230 : 120}
+                    src={isRating ? (i===0 ? "./media/profilepic%20(1).jpg" : i===1 ? "./media/profilepic%20(2).jpg" : "./media/profilepic%20(3).jpg") : undefined}
                     description={ph.desc}
                     photoNote={ph.note}
                     showLabel={!isRating}
                     overlayText={isRating ? labels[i] : undefined}
-                    objectFit={isRating ? (i===2 ? "cover" : "contain") : "contain"}
-                    objectPosition={isRating ? (i===0 ? "top center" : i===1 ? "top center" : "center 8%") : "center"}
-                    style={isRating ? {fontSize:10,padding:i===2?0:6,background:"transparent"} : {fontSize:10,padding:10}}
+                    objectFit={isRating ? "contain" : "contain"}
+                    objectPosition={isRating ? "top center" : "center"}
+                    style={isRating ? {fontSize:10,padding:6,background:"transparent"} : {fontSize:10,padding:10}}
                   />
                 );
               })}
@@ -639,19 +640,21 @@ const SalesPage=({onCTA})=>(
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
             {[
-              {label:"First Photo",sub:"Confident close-up, warm lighting",large:true,desc:"Your #1 MatchFrame photo: warm natural light, confident expression, clean background. This is the photo she sees first in the feed."},
-              {label:"Outdoor Shot",sub:"Hiking / travel / park",desc:"Outdoor lifestyle: natural light, relaxed body language, activity-based context"},
-              {label:"Social Setting",sub:"With friends / at event",desc:"Social proof photo: well-lit, laughing, clearly having fun, cropped for dating"},
-              {label:"Full Body",sub:"Well-dressed, good posture",desc:"Full body in a casual-sharp outfit, natural pose, clean urban or park setting"},
-              {label:"Interest/Hobby",sub:"Cooking / pets / sport",desc:"Show a genuine interest: cooking, with a dog, playing guitar, at a game"},
-              {label:"Casual/Candid",sub:"Relaxed and real",desc:"Candid-style: caught mid-laugh, natural moment, warm tones, approachable"},
+              {label:"First Photo",sub:"Confident close-up, warm lighting",large:true,desc:"Your #1 MatchFrame photo: warm natural light, confident expression, clean background. This is the photo she sees first in the feed.",src:"./media/1st%20same%20guy%20photo.png"},
+              {label:"Outdoor Shot",sub:"Hiking / travel / park",desc:"Outdoor lifestyle: natural light, relaxed body language, activity-based context",src:"./media/hero-2.jpg"},
+              {label:"Social Setting",sub:"With friends / at event",desc:"Social proof photo: well-lit, laughing, clearly having fun, cropped for dating",src:"./media/hero-3.jpg"},
+              {label:"Full Body",sub:"Well-dressed, good posture",desc:"Full body in a casual-sharp outfit, natural pose, clean urban or park setting",src:"./media/hero-4.jpg"},
+              {label:"Interest/Hobby",sub:"Cooking / pets / sport",desc:"Show a genuine interest: cooking, with a dog, playing guitar, at a game",src:"./media/hero-5.jpg"},
+              {label:"Casual/Candid",sub:"Relaxed and real",desc:"Candid-style: caught mid-laugh, natural moment, warm tones, approachable",src:"./media/hero-6.jpg"},
             ].map((s,i)=>(
               <div key={i} style={{gridColumn:s.large?"1/-1":"auto"}}>
                 <PhotoPlaceholder type="hinge" height={s.large?200:130}
+                  src={s.src}
                   description={s.desc}
                   photoNote={`Hinge slot ${i+1}: ${s.label}`}
-                  objectFit="contain"
-                  style={{borderRadius:10,padding:6}}
+                  objectFit="cover"
+                  objectPosition="top center"
+                  style={{borderRadius:10,padding:0}}
                 />
                 <p style={{textAlign:"center",fontSize:11,color:"rgba(255,255,255,.4)",marginTop:4}}>{s.label} - {s.sub}</p>
               </div>
