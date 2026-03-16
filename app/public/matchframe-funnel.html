@@ -542,7 +542,7 @@ const SalesPage=({onCTA})=>(
                 description="Full body before/after combined example"
                 photoNote="Single image containing before and after"
                 objectFit="cover"
-                objectPosition="center 28%"
+                objectPosition="center 12%"
                 style={{borderRadius:18,overflow:"hidden"}}
               />
             </div>
@@ -550,14 +550,14 @@ const SalesPage=({onCTA})=>(
           </div>
           {/* B/A Pair 4: Social */}
           <div style={{background:C.bg,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-              <PhotoPlaceholder type="before" height={200}
-                description="Dark bar photo: red-eye flash, holding a drink awkwardly, half-closed eyes, sweaty"
-                photoNote="Real customer's bad bar photo - unusable social photo"
-              />
-              <PhotoPlaceholder type="after" height={200}
-                description="Social setting: same guy at a well-lit restaurant or rooftop, laughing naturally, looks like he belongs, warm tones"
-                photoNote="MatchFrame output - social/candid, same person, good energy"
+            <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
+              <PhotoPlaceholder type="after" height={240}
+                src="./media/the%20social%20shot%20example.png"
+                description="Social before/after combined example"
+                photoNote="Single image containing before and after"
+                objectFit="cover"
+                objectPosition="center 18%"
+                style={{borderRadius:18,overflow:"hidden"}}
               />
             </div>
             <p style={{textAlign:"center",fontSize:13,color:C.muted,marginTop:10}}>🍷 <strong style={{color:C.text}}>Social Slot</strong> - Proves you're fun to be around</p>
