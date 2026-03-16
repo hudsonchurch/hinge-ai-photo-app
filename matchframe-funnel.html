@@ -717,10 +717,12 @@ const SalesPage=({onCTA})=>(
           <div>
             <video
               src="./media/phone-after-matchframe.mp4"
-              controls
-              playsInline
+              autoPlay
+              loop
               muted
-              style={{width:"100%",maxHeight:360,borderRadius:12,border:`1px solid ${C.border}`,background:"#000",objectFit:"cover"}}
+              playsInline
+              controls={false}
+              style={{width:"100%",maxHeight:360,borderRadius:12,border:`1px solid ${C.border}`,background:"#000",objectFit:"cover",pointerEvents:"none"}}
             />
           </div>
         </div>
