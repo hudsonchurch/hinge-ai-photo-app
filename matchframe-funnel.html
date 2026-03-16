@@ -536,14 +536,12 @@ const SalesPage=({onCTA})=>(
           </div>
           {/* B/A Pair 3: Full Body */}
           <div style={{background:C.bg,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-              <PhotoPlaceholder type="before" height={200}
-                description="Gym mirror selfie: messy locker room background, phone covering face, unflattering overhead fluorescent lighting"
-                photoNote="Real customer's gym mirror selfie - bad full body example"
-              />
-              <PhotoPlaceholder type="after" height={200}
-                description="Full body shot: same guy in a well-fitted casual outfit, standing naturally on a city street or park, good posture, natural light"
-                photoNote="MatchFrame output - full body, well-dressed, natural setting"
+            <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
+              <PhotoPlaceholder type="after" height={240}
+                src="./media/full%20body%20ecxample.png"
+                description="Full body before/after combined example"
+                photoNote="Single image containing before and after"
+                style={{borderRadius:18,overflow:"hidden"}}
               />
             </div>
             <p style={{textAlign:"center",fontSize:13,color:C.muted,marginTop:10}}>👔 <strong style={{color:C.text}}>Full Body Slot</strong> - Answers 'what does he actually look like'</p>
