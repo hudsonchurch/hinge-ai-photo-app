@@ -31,6 +31,13 @@ input::placeholder{color:var(--dim)}
   position:relative; overflow:hidden; border-radius:10px;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   text-align:center; gap:8px; padding:16px;
+  background:transparent !important;
+  border:none !important;
+}
+.photo-placeholder img{
+  border:none !important;
+  box-shadow:none !important;
+  border-radius:10px;
 }
 .photo-placeholder .label {
   font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
@@ -104,18 +111,18 @@ const resolvePhotoSrc=(description="",photoNote="")=>{
 
 const PhotoPlaceholder=({type="before",height=200,description,photoNote,style={},src,showLabel=true,overlayText,objectFit="cover",objectPosition="center"})=>{
   const styles={
-    before:{bg:"#111"},
-    after:{bg:"#111"},
-    neutral:{bg:"#111"},
-    hinge:{bg:"#111"},
-    result:{bg:"#111"},
+    before:{bg:"transparent"},
+    after:{bg:"transparent"},
+    neutral:{bg:"transparent"},
+    hinge:{bg:"transparent"},
+    result:{bg:"transparent"},
   };
   const s=styles[type]||styles.neutral;
   const imageSrc = src || resolvePhotoSrc(description, photoNote) || "./media/hero-1.jpg";
 
   return(
     <div className="photo-placeholder" style={{background:s.bg,height,padding:0,...style}}>
-      <img src={imageSrc} alt={description||"MatchFrame visual"} style={{width:"100%",height:"100%",objectFit,objectPosition,display:"block",background:"#111"}}/>
+      <img src={imageSrc} alt={description||"MatchFrame visual"} style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center",display:"block"}}/>
     </div>
   );
 };
