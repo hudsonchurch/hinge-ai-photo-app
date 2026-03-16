@@ -439,7 +439,7 @@ const QuizPage=({onComplete})=>{
                     overlayText={isRating ? labels[i] : undefined}
                     objectFit={isRating ? (i===2 ? "cover" : "contain") : "contain"}
                     objectPosition={isRating ? (i===0 ? "top center" : i===1 ? "top center" : "center 8%") : "center"}
-                    style={isRating ? {fontSize:10,padding:i===2?0:6,background:"transparent"} : {fontSize:10,padding:10}}
+                    style={isRating ? {fontSize:10,padding:0,background:"transparent"} : {fontSize:10,padding:10}}
                   />
                 );
               })}
