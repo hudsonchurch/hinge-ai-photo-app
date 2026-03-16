@@ -397,7 +397,7 @@ const QuizPage=({onComplete})=>{
 
           {idx===5&&(
             <div style={{display:"flex",justifyContent:"center",alignItems:"flex-end",gap:16,marginBottom:20}}>
-              <img src="media/photoshop.png" alt="Photoshop" style={{width:84,height:84,objectFit:"cover",borderRadius:14,opacity:.98,mixBlendMode:"multiply",filter:"brightness(.9) contrast(1.35)"}}/>
+              <img src="media/photoshop.png" alt="Photoshop" style={{width:82,height:82,objectFit:"cover",objectPosition:"center 48%",borderRadius:16,opacity:.98,mixBlendMode:"multiply",filter:"brightness(.9) contrast(1.35)"}}/>
               <span style={{fontSize:68,fontWeight:800,lineHeight:1,color:C.accent,textShadow:"0 0 24px rgba(201,148,62,.25)"}}>?</span>
             </div>
           )}
@@ -571,7 +571,7 @@ const SalesPage=({onCTA})=>(
 
         <InlineProof
           quote="I was terrified they'd look like someone else. They literally just look like me on a good day. My sister saw them and said 'where did you take these?' - she didn't know they were AI."
-          name="Alex M." age={30} handles="Will it look like me?" result="Undetectable"
+          name="Alex M." age={30} handles="Will it look like me?" result="Undetectable" avatar="./media/profilepic%20(1).jpg"
         />
       </Sec>
     </div>
@@ -618,7 +618,7 @@ const SalesPage=({onCTA})=>(
 
       <InlineProof
         quote="Spent $800 on a photographer last year. I felt so stiff the whole time and the photos looked forced. MatchFrame cost me $19, took 10 minutes, and came out more natural than anything the photographer got."
-        name="Ryan T." age={27} handles="Why not a photographer?" result="Saved $760"
+        name="Ryan T." age={27} handles="Why not a photographer?" result="Saved $760" avatar="./media/profilepic%20(3).jpg"
       />
     </Sec>
 
@@ -665,7 +665,7 @@ const SalesPage=({onCTA})=>(
 
         <InlineProof
           quote="First week with new photos I matched with 4 women I'd actually want to date. Every single one recognized me when we met up. No awkward 'you look different' moment."
-          name="David R." age={31} handles="Does it work on Hinge?" result="+4x quality matches"
+          name="David R." age={31} handles="Does it work on Hinge?" result="+4x quality matches" avatar="./media/profilepic%20(2).jpg"
         />
       </Sec>
     </div>
@@ -729,7 +729,7 @@ const SalesPage=({onCTA})=>(
     {/* MORE INLINE PROOF */}
     <Sec>
       <InlineProof quote="I was worried about the catfish thing. But on my first date she literally said 'you look just like your photos.' That's never happened before." name="Tom S." age={29} handles="Is this catfishing?" result="Date recognized him" avatar="./media/profilepic%20(2).jpg"/>
-      <InlineProof quote="Best $19 I ever spent. My last haircut cost more and did literally nothing for my dating life. This changed everything in a weekend." name="Chris L." age={26} handles="Is it worth $19?" result="Life-changing weekend"/>
+      <InlineProof quote="Best $19 I ever spent. My last haircut cost more and did literally nothing for my dating life. This changed everything in a weekend." name="Chris L." age={26} handles="Is it worth $19?" result="Life-changing weekend" avatar="./media/profilepic%20(1).jpg"/>
     </Sec>
 
     {/* GUARANTEE */}
@@ -738,7 +738,7 @@ const SalesPage=({onCTA})=>(
         <Icon name="shield" size={40} color={C.accent}/>
         <Heading size="md" style={{marginTop:16}}>The "Still Looks Like You" Guarantee</Heading>
         <p style={{fontSize:16,lineHeight:1.7,color:C.muted,maxWidth:500,margin:"16px auto 0"}}>If your photos don't look recognizably like you, we'll redo them free or give you a full refund. No questions.</p>
-        <InlineProof quote="The guarantee made it a no-brainer. Figured worst case I get my money back. Didn't need it - the photos were spot-on." name="Jake W." age={33} handles="Can I trust this?" result="Didn't need the guarantee"/>
+        <InlineProof quote="The guarantee made it a no-brainer. Figured worst case I get my money back. Didn't need it - the photos were spot-on." name="Jake W." age={33} handles="Can I trust this?" result="Didn't need the guarantee" avatar="./media/profilepic%20(3).jpg"/>
       </Sec>
     </div>
 
