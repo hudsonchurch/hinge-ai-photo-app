@@ -752,19 +752,15 @@ const SalesPage=({onCTA})=>(
         <p style={{color:C.muted,fontSize:15,marginTop:8}}>Three steps. No awkwardness.</p>
       </div>
       {[
-        {num:"01",title:"Upload Your Existing Photos",desc:"Send us 8–12 photos you already have. Selfies, group shots, candids - whatever's on your phone.",
-         photo:{desc:"Screenshot of the MatchFrame upload interface: clean drag-and-drop area with photo thumbnails being added",note:"Product UI screenshot - upload step"}},
-        {num:"02",title:"Tell Us Your Vibe",desc:"Quick questionnaire: outdoors guy? Urban professional? We match the style to who you actually are.",
-         photo:{desc:"Screenshot of the style preference selector: options for outdoor, urban, casual, dressed up, with example thumbnails for each",note:"Product UI screenshot - style selector"}},
-        {num:"03",title:"Get Your Photos in 24 Hours",desc:"8 dating-app-ready photos delivered to your inbox plus a Photo Ranking Guide for your Hinge layout.",
-         photo:{desc:"Screenshot of the delivered photo gallery: 8 photos in a clean grid, download buttons, with the ranking guide PDF below",note:"Product UI screenshot - delivery gallery"}},
-      ].map(({num,title,desc,photo})=>(
+        {num:"01",title:"Upload Your Existing Photos",desc:"Send us 8–12 photos you already have. Selfies, group shots, candids - whatever's on your phone."},
+        {num:"02",title:"Tell Us Your Vibe",desc:"Quick questionnaire: outdoors guy? Urban professional? We match the style to who you actually are."},
+        {num:"03",title:"Get Your Photos in 24 Hours",desc:"8 dating-app-ready photos delivered to your inbox plus a Photo Ranking Guide for your Hinge layout."},
+      ].map(({num,title,desc})=>(
         <div key={num} style={{display:"flex",gap:20,marginBottom:32}}>
-          <div style={{fontSize:42,fontWeight:800,color:C.accentMut,fontFamily:"'Playfair Display',serif",lineHeight:1,flexShrink:0,width:56}}>{num}</div>
+          <div style={{fontSize:42,fontWeight:800,color:C.accent,fontFamily:"'Playfair Display',serif",lineHeight:1,flexShrink:0,width:56,textShadow:"0 0 20px rgba(201,148,62,.25)"}}>{num}</div>
           <div style={{flex:1}}>
             <h4 style={{fontWeight:600,fontSize:17,marginBottom:6}}>{title}</h4>
             <p style={{fontSize:14,lineHeight:1.7,color:C.muted,marginBottom:12}}>{desc}</p>
-            <PhotoPlaceholder type="neutral" height={140} description={photo.desc} photoNote={photo.note}/>
           </div>
         </div>
       ))}
