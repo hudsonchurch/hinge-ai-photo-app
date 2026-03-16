@@ -496,11 +496,15 @@ const SalesPage=({onCTA})=>(
         <p style={{fontSize:22,fontWeight:700,color:C.accent,marginBottom:12}}>Starting at just $39</p>
         
         {/* HERO PHOTO */}
-        <div style={{maxWidth:600,margin:"0 auto 24px"}}>
-          <PhotoPlaceholder type="after" height={280}
-            description="Hero image: 3-4 sample MatchFrame output photos arranged in an overlapping fan/collage. Show different scenarios - close-up, outdoor, social, dressed up. All clearly the same guy. Warm, natural, aspirational."
-            photoNote="This is the #1 most important image on the entire site. Invest heavily here."
-          />
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:8,maxWidth:600,margin:"0 auto 24px"}}>
+          {["hero-1.jpg","hero-2.jpg","hero-3.jpg","hero-4.jpg","hero-5.jpg","hero-6.jpg"].map((f,i)=>(
+            <img
+              key={f}
+              src={`/media/${f}`}
+              alt={`Hero collage ${i+1}`}
+              style={{width:"100%",aspectRatio:"1/1",objectFit:"cover",borderRadius:10,border:`1px solid ${C.border}`}}
+            />
+          ))}
         </div>
 
         <Btn size="lg" onClick={onCTA}>Upgrade My Photos Now →</Btn>
