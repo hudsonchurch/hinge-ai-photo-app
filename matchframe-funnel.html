@@ -153,9 +153,12 @@ const ProofTicker=()=>{
   return<div style={{background:C.bgEl,borderBottom:`1px solid ${C.border}`,overflow:"hidden",padding:"10px 0"}}><div style={{display:"flex",gap:40,animation:"tickerScroll 25s linear infinite",width:"max-content"}}>{[...items,...items].map((t,i)=><span key={i} style={{fontSize:13,fontWeight:500,color:C.muted,whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:6}}><span style={{width:4,height:4,borderRadius:"50%",background:C.accent,flexShrink:0}}/>{t}</span>)}</div></div>;
 };
 
-const InlineProof=({quote,name,age,handles,result})=>(
+const InlineProof=({quote,name,age,handles,result,avatar})=>(
   <div style={{background:`linear-gradient(135deg,${C.accentMut},rgba(201,148,62,.03))`,border:`1px solid rgba(201,148,62,.2)`,borderRadius:12,padding:"20px 24px",margin:"28px 0",display:"flex",gap:16,alignItems:"flex-start"}}>
-    <div style={{width:40,height:40,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},#B8842E)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:C.bg,fontWeight:700,fontSize:16}}>{name[0]}</div>
+    {avatar
+      ? <img src={avatar} alt={name} style={{width:40,height:40,borderRadius:"50%",objectFit:"cover",flexShrink:0}}/>
+      : <div style={{width:40,height:40,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},#B8842E)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:C.bg,fontWeight:700,fontSize:16}}>{name[0]}</div>
+    }
     <div style={{flex:1}}>
       <p style={{fontSize:14,lineHeight:1.65,fontStyle:"italic",marginBottom:10}}>"{quote}"</p>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
@@ -394,7 +397,7 @@ const QuizPage=({onComplete})=>{
 
           {idx===5&&(
             <div style={{display:"flex",justifyContent:"center",alignItems:"flex-end",gap:16,marginBottom:20}}>
-              <img src="media/photoshop.png" alt="Photoshop" style={{width:84,height:84,objectFit:"contain",opacity:.98,mixBlendMode:"multiply",filter:"brightness(.9) contrast(1.35)"}}/>
+              <img src="media/photoshop.png" alt="Photoshop" style={{width:84,height:84,objectFit:"cover",borderRadius:14,opacity:.98,mixBlendMode:"multiply",filter:"brightness(.9) contrast(1.35)"}}/>
               <span style={{fontSize:68,fontWeight:800,lineHeight:1,color:C.accent,textShadow:"0 0 24px rgba(201,148,62,.25)"}}>?</span>
             </div>
           )}
@@ -434,9 +437,9 @@ const QuizPage=({onComplete})=>{
                     photoNote={ph.note}
                     showLabel={!isRating}
                     overlayText={isRating ? labels[i] : undefined}
-                    objectFit={isRating ? "cover" : "contain"}
-                    objectPosition={isRating ? (i===1 ? "center 24%" : "center 32%") : "center"}
-                    style={isRating ? {fontSize:10,padding:0} : {fontSize:10,padding:10}}
+                    objectFit={isRating ? "contain" : "contain"}
+                    objectPosition={"center"}
+                    style={isRating ? {fontSize:10,padding:4,background:"transparent"} : {fontSize:10,padding:10}}
                   />
                 );
               })}
@@ -515,6 +518,7 @@ const SalesPage=({onCTA})=>(
                 photoNote="Real customer's original selfie - the 'before' close-up"
               />
               <PhotoPlaceholder type="after" height={200}
+                src="./media/hero-1.jpg"
                 description="MatchFrame close-up: same guy, warm side lighting, slight smile, clean neutral background, confident but approachable"
                 photoNote="MatchFrame output - enhanced close-up, same person"
               />
@@ -646,7 +650,8 @@ const SalesPage=({onCTA})=>(
                 <PhotoPlaceholder type="hinge" height={s.large?200:130}
                   description={s.desc}
                   photoNote={`Hinge slot ${i+1}: ${s.label}`}
-                  style={{borderRadius:10}}
+                  objectFit="contain"
+                  style={{borderRadius:10,padding:6}}
                 />
                 <p style={{textAlign:"center",fontSize:11,color:"rgba(255,255,255,.4)",marginTop:4}}>{s.label} - {s.sub}</p>
               </div>
@@ -723,7 +728,7 @@ const SalesPage=({onCTA})=>(
 
     {/* MORE INLINE PROOF */}
     <Sec>
-      <InlineProof quote="I was worried about the catfish thing. But on my first date she literally said 'you look just like your photos.' That's never happened before." name="Tom S." age={29} handles="Is this catfishing?" result="Date recognized him"/>
+      <InlineProof quote="I was worried about the catfish thing. But on my first date she literally said 'you look just like your photos.' That's never happened before." name="Tom S." age={29} handles="Is this catfishing?" result="Date recognized him" avatar="./media/profilepic%20(2).jpg"/>
       <InlineProof quote="Best $19 I ever spent. My last haircut cost more and did literally nothing for my dating life. This changed everything in a weekend." name="Chris L." age={26} handles="Is it worth $19?" result="Life-changing weekend"/>
     </Sec>
 
