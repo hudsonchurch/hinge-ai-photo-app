@@ -314,7 +314,7 @@ const QuizPage=({onComplete})=>{
             
             {/* VISUAL: Photos for this insight slide */}
             {s.visual&&s.visual.type==="stat"&&(
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,margin:"20px 0 20px -36px"}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,margin:"20px 0 20px -52px"}}>
                 <PhotoPlaceholder
                   type="neutral"
                   height={160}
@@ -343,9 +343,9 @@ const QuizPage=({onComplete})=>{
               </div>
             )}
             {s.visual&&s.visual.type==="comparison"&&(
-              <div style={{display:"grid",gridTemplateColumns:s.id==="mech"||s.id==="diff"?"repeat(2, minmax(120px, 170px))":"1fr 1fr",justifyContent:s.id==="mech"||s.id==="diff"?"center":undefined,gap:12,margin:"20px 0"}}>
+              <div style={{display:"grid",gridTemplateColumns:s.id==="mech"||s.id==="diff"?"repeat(2, minmax(150px, 230px))":"1fr 1fr",justifyContent:s.id==="mech"||s.id==="diff"?"center":undefined,gap:14,margin:"20px 0"}}>
                 {s.visual.photos.map((ph,i)=>(
-                  <PhotoPlaceholder key={i} type={ph.type} height={s.id==="mech"||s.id==="diff"?230:200} description={ph.desc} photoNote={ph.note} src={ph.src} showLabel={!(s.id==="mech"||s.id==="diff")} objectFit={s.id==="mech"||s.id==="diff"?"contain":"cover"} style={s.id==="mech"||s.id==="diff"?{padding:8}:undefined}/>
+                  <PhotoPlaceholder key={i} type={ph.type} height={s.id==="mech"||s.id==="diff"?300:250} description={ph.desc} photoNote={ph.note} src={ph.src} showLabel={!(s.id==="mech"||s.id==="diff")} objectFit={s.id==="mech"||s.id==="diff"?"cover":"cover"} style={s.id==="mech"||s.id==="diff"?{padding:0,borderRadius:18,overflow:"hidden"}:{borderRadius:18,overflow:"hidden"}}/>
                 ))}
               </div>
             )}
@@ -911,23 +911,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
-);
+<App/>);
 </script>
-</body>
-</html>
-ipt>
-</body>
-</html>
-dy>
-</html>
-ipt>
-</body>
-</html>
-l>
-ipt>
-</body>
-</html>
-l>
-ipt>
 </body>
 </html>
