@@ -432,14 +432,14 @@ const QuizPage=({onComplete})=>{
                   <PhotoPlaceholder
                     key={i}
                     type={i===0?"before":i===2?"after":"neutral"}
-                    height={isRating ? 210 : 120}
+                    height={isRating ? 230 : 120}
                     description={ph.desc}
                     photoNote={ph.note}
                     showLabel={!isRating}
                     overlayText={isRating ? labels[i] : undefined}
-                    objectFit={isRating ? "cover" : "contain"}
-                    objectPosition={isRating ? (i===0 ? "center 2%" : i===1 ? "center 0%" : "center 8%") : "center"}
-                    style={isRating ? {fontSize:10,padding:0,background:"transparent"} : {fontSize:10,padding:10}}
+                    objectFit={isRating ? (i===2 ? "cover" : "contain") : "contain"}
+                    objectPosition={isRating ? (i===0 ? "top center" : i===1 ? "top center" : "center 8%") : "center"}
+                    style={isRating ? {fontSize:10,padding:i===2?0:6,background:"transparent"} : {fontSize:10,padding:10}}
                   />
                 );
               })}
