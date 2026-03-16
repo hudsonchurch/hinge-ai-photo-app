@@ -111,11 +111,11 @@ const resolvePhotoSrc=(description="",photoNote="")=>{
 
 const PhotoPlaceholder=({type="before",height=200,description,photoNote,style={},src,showLabel=true,overlayText,objectFit="cover",objectPosition="center"})=>{
   const styles={
-    before:{bg:"#111",border:"1px solid rgba(255,255,255,.08)"},
-    after:{bg:"#111",border:"1px solid rgba(255,255,255,.08)"},
-    neutral:{bg:"#111",border:"1px solid rgba(255,255,255,.08)"},
-    hinge:{bg:"#111",border:"1px solid rgba(255,255,255,.08)"},
-    result:{bg:"#111",border:"1px solid rgba(255,255,255,.08)"},
+    before:{bg:"transparent"},
+    after:{bg:"transparent"},
+    neutral:{bg:"transparent"},
+    hinge:{bg:"transparent"},
+    result:{bg:"transparent"},
   };
   const s=styles[type]||styles.neutral;
   const imageSrc = src || resolvePhotoSrc(description, photoNote) || "./media/hero-1.jpg";
@@ -438,8 +438,8 @@ const QuizPage=({onComplete})=>{
                     showLabel={!isRating}
                     overlayText={isRating ? labels[i] : undefined}
                     objectFit={isRating ? "cover" : "contain"}
-                    objectPosition={isRating ? (i===0 ? "center 2%" : i===1 ? "center 0%" : "center -22%") : "center"}
-                    style={isRating ? {fontSize:10,padding:0,background:"transparent"} : {fontSize:10,padding:10}}
+                    objectPosition={isRating ? (i===0 ? "center 2%" : i===1 ? "center 0%" : "center 35%") : "center"}
+                    style={isRating ? {fontSize:10,padding:0,background:"transparent",borderRadius:14,overflow:"hidden"} : {fontSize:10,padding:10}}
                   />
                 );
               })}
