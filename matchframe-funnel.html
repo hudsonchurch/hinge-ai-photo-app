@@ -437,9 +437,9 @@ const QuizPage=({onComplete})=>{
                     photoNote={ph.note}
                     showLabel={!isRating}
                     overlayText={isRating ? labels[i] : undefined}
-                    objectFit={isRating ? "contain" : "contain"}
-                    objectPosition={"center"}
-                    style={isRating ? {fontSize:10,padding:4,background:"transparent"} : {fontSize:10,padding:10}}
+                    objectFit={isRating ? "cover" : "contain"}
+                    objectPosition={isRating ? "center 18%" : "center"}
+                    style={isRating ? {fontSize:10,padding:0,background:"transparent"} : {fontSize:10,padding:10}}
                   />
                 );
               })}
