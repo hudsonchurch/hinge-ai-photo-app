@@ -715,10 +715,12 @@ const SalesPage=({onCTA})=>(
             </div>
           </div>
           <div>
-            {/* PHOTO: Phone with notification mockup */}
-            <PhotoPlaceholder type="result" height={300}
-              description="iPhone screenshot showing Hinge notification stack: 'Sarah liked your photo' · 'Emma sent you a rose' · 'You matched with Jessica' · 'Olivia sent a message' - 4+ notifications stacked, showing the outcome they want"
-              photoNote="Mock iPhone lock screen with Hinge match notifications - sell the dream outcome"
+            <video
+              src="./media/phone-after-matchframe.mp4"
+              controls
+              playsInline
+              muted
+              style={{width:"100%",maxHeight:360,borderRadius:12,border:`1px solid ${C.border}`,background:"#000",objectFit:"cover"}}
             />
           </div>
         </div>
