@@ -407,7 +407,7 @@ const QuizPage=({onComplete})=>{
 
           {/* VISUAL: Quiz question photos */}
           {s.visual&&s.visual.type==="grid"&&(
-            <div style={{display:"grid",gridTemplateColumns:`repeat(${s.visual.photos.length},1fr)`,gap:s.id==="app"?4:10,marginBottom:20,maxWidth:s.id==="app"?180:"none",marginInline:s.id==="app"?"auto":undefined}}>
+            <div style={{display:"grid",gridTemplateColumns:`repeat(${s.visual.photos.length},1fr)`,gap:s.id==="app"?8:10,marginBottom:20,maxWidth:s.id==="app"?240:"none",marginInline:s.id==="app"?"auto":undefined}}>
               {s.visual.photos.map((ph,i)=>{
                 const isAppStep = s.id === "app";
                 return (
@@ -420,10 +420,10 @@ const QuizPage=({onComplete})=>{
                     photoNote={ph.note}
                     showLabel={!isAppStep}
                     objectFit={isAppStep ? "cover" : "cover"}
-                    objectPosition={isAppStep ? (i===0 ? "center 68%" : "center") : "center"}
-                    imgStyle={isAppStep && i===0 ? {transform:"scale(1.28)",borderRadius:"16px"} : undefined}
+                    objectPosition={isAppStep ? (i===0 ? "center 82%" : "center") : "center"}
+                    imgStyle={isAppStep && i===0 ? {transform:"scale(1.56)",clipPath:"inset(0 round 22px)"} : undefined}
                     style={isAppStep
-                      ? {fontSize:10,padding:0,aspectRatio:"1 / 1",maxWidth:82,margin:"0 auto",borderRadius:16,overflow:"hidden",background:"transparent"}
+                      ? {fontSize:10,padding:0,aspectRatio:"1 / 1",maxWidth:110,margin:"0 auto",borderRadius:22,overflow:"hidden",background:"transparent"}
                       : {fontSize:10,padding:10}}
                   />
                 );
@@ -519,15 +519,12 @@ const SalesPage=({onCTA})=>(
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
           {/* B/A Pair 1: Close-up */}
           <div style={{background:C.bg,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-              <PhotoPlaceholder type="before" height={200}
-                description="Close-up selfie: harsh bathroom light from above, shadows under eyes, slightly unflattering angle, blank expression"
-                photoNote="Real customer's original selfie - the 'before' close-up"
-              />
-              <PhotoPlaceholder type="after" height={200}
+            <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
+              <PhotoPlaceholder type="after" height={240}
                 src="./media/1st%20same%20guy%20photo.png"
                 description="MatchFrame close-up: same guy, warm side lighting, slight smile, clean neutral background, confident but approachable"
                 photoNote="MatchFrame output - enhanced close-up, same person"
+                style={{borderRadius:18,overflow:"hidden"}}
               />
             </div>
             <p style={{textAlign:"center",fontSize:13,color:C.muted,marginTop:10}}>📷 <strong style={{color:C.text}}>First Photo Slot</strong> - The one that stops the scroll</p>
@@ -915,3 +912,19 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
+()=>go("oto2d")}/>}
+      {p==="oto2d"&&<OTO2D onAccept={()=>go("thanks")} onDecline={()=>go("thanks")}/>}
+      {p==="thanks"&&<Thanks/>}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
+<App/>);
+</script>
+</body>
+</html>
+
