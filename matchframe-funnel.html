@@ -665,7 +665,7 @@ const SalesPage=({onCTA})=>(
 
         <InlineProof
           quote="First week with new photos I matched with 4 women I'd actually want to date. Every single one recognized me when we met up. No awkward 'you look different' moment."
-          name="David R." age={31} handles="Does it work on Hinge?" result="+4x quality matches" avatar="./media/new%20profile%20pic%20examples%20(3).jpg"
+          name="David R." age={31} handles="Does it work on Hinge?" result="+4x quality matches" avatar="./media/profilepic%20(2).jpg"
         />
       </Sec>
     </div>
@@ -679,16 +679,16 @@ const SalesPage=({onCTA})=>(
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
         {[
           {label:"Confident Close-Up",desc:"Warm lighting, natural expression. Your #1 first-photo candidate.",color:"rgba(201,148,62,.08)",border:"rgba(201,148,62,.25)",
-           photo:"Close-up portrait: warm side light, slight smile, eyes engaging camera, natural skin texture, clean background"},
+           photo:"Close-up portrait: warm side light, slight smile, eyes engaging camera, natural skin texture, clean background",src:"./media/confident-close-up.jpg"},
           {label:"Outdoor / Travel",desc:"Adventure context without looking staged. Parks, cities, hikes.",color:"rgba(78,203,113,.06)",border:"rgba(78,203,113,.2)",
-           photo:"Outdoor portrait: trail, city street, or park. Natural sunlight, relaxed posture, lifestyle context"},
+           photo:"Outdoor portrait: trail, city street, or park. Natural sunlight, relaxed posture, lifestyle context",src:"./media/outdoor-travel.jpg"},
           {label:"Social & Friends",desc:"Shows you have a life. Cropped for dating but clearly social.",color:"rgba(100,140,255,.06)",border:"rgba(100,140,255,.2)",
-           photo:"Social setting: restaurant, rooftop, gathering. Laughing, approachable energy, well-lit"},
+           photo:"Social setting: restaurant, rooftop, gathering. Laughing, approachable energy, well-lit",src:"./media/social-friends.jpg"},
           {label:"Full Body",desc:"Well-dressed, natural posture. Eliminates the 'what does he look like' question.",color:"rgba(200,100,200,.06)",border:"rgba(200,100,200,.2)",
-           photo:"Full body: casual-sharp outfit, natural standing pose, urban or park background"},
-        ].map(({label,desc,color,border,photo})=>(
+           photo:"Full body: casual-sharp outfit, natural standing pose, urban or park background",src:"./media/full-body.jpg"},
+        ].map(({label,desc,color,border,photo,src})=>(
           <div key={label} style={{background:color,borderRadius:12,border:`1px solid ${border}`,padding:16}}>
-            <PhotoPlaceholder type="after" height={160} description={photo} photoNote={`Category example: ${label}`}/>
+            <PhotoPlaceholder type="after" height={160} description={photo} photoNote={`Category example: ${label}`} src={src}/>
             <div style={{marginTop:12,textAlign:"center"}}>
               <div style={{fontWeight:600,fontSize:15}}>{label}</div>
               <p style={{fontSize:13,lineHeight:1.55,color:C.muted,marginTop:4}}>{desc}</p>
@@ -742,7 +742,7 @@ const SalesPage=({onCTA})=>(
         <Icon name="shield" size={40} color={C.accent}/>
         <Heading size="md" style={{marginTop:16}}>The "Still Looks Like You" Guarantee</Heading>
         <p style={{fontSize:16,lineHeight:1.7,color:C.muted,maxWidth:500,margin:"16px auto 0"}}>If your photos don't look recognizably like you, we'll redo them free or give you a full refund. No questions.</p>
-        <InlineProof quote="The guarantee made it a no-brainer. Figured worst case I get my money back. Didn't need it - the photos were spot-on." name="Jake W." age={33} handles="Can I trust this?" result="Didn't need the guarantee" avatar="./media/profilepic%20(3).jpg"/>
+        <InlineProof quote="The guarantee made it a no-brainer. Figured worst case I get my money back. Didn't need it - the photos were spot-on." name="Jake W." age={33} handles="Can I trust this?" result="Didn't need the guarantee" avatar="./media/new%20profile%20pic%20examples%20(2).jpg"/>
       </Sec>
     </div>
 
