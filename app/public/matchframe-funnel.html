@@ -683,12 +683,12 @@ const SalesPage=({onCTA})=>(
           {label:"Outdoor / Travel",desc:"Adventure context without looking staged. Parks, cities, hikes.",color:"rgba(78,203,113,.06)",border:"rgba(78,203,113,.2)",
            photo:"Outdoor portrait: trail, city street, or park. Natural sunlight, relaxed posture, lifestyle context",src:"./media/outdoor-travel.jpg"},
           {label:"Social & Friends",desc:"Shows you have a life. Cropped for dating but clearly social.",color:"rgba(100,140,255,.06)",border:"rgba(100,140,255,.2)",
-           photo:"Social setting: restaurant, rooftop, gathering. Laughing, approachable energy, well-lit",src:"./media/social-friends.jpg"},
+           photo:"Social setting: restaurant, rooftop, gathering. Laughing, approachable energy, well-lit",src:"./media/the social shot example.png"},
           {label:"Full Body",desc:"Well-dressed, natural posture. Eliminates the 'what does he look like' question.",color:"rgba(200,100,200,.06)",border:"rgba(200,100,200,.2)",
-           photo:"Full body: casual-sharp outfit, natural standing pose, urban or park background",src:"./media/full-body.jpg"},
-        ].map(({label,desc,color,border,photo,src})=>(
+           photo:"Full body: casual-sharp outfit, natural standing pose, urban or park background",src:"./media/full-body.jpg",position:"center 82%"},
+        ].map(({label,desc,color,border,photo,src,position})=>(
           <div key={label} style={{background:color,borderRadius:12,border:`1px solid ${border}`,padding:16}}>
-            <PhotoPlaceholder type="after" height={160} description={photo} photoNote={`Category example: ${label}`} src={src}/>
+            <PhotoPlaceholder type="after" height={160} description={photo} photoNote={`Category example: ${label}`} src={src} objectPosition={position||"center"}/>
             <div style={{marginTop:12,textAlign:"center"}}>
               <div style={{fontWeight:600,fontSize:15}}>{label}</div>
               <p style={{fontSize:13,lineHeight:1.55,color:C.muted,marginTop:4}}>{desc}</p>
