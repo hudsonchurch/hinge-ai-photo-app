@@ -846,7 +846,12 @@ const OrderPage=({onComplete})=>{
     const u=new URL(base);
     if(email)u.searchParams.set("prefilled_email",email);
     if(firstName||lastName)u.searchParams.set("client_reference_id",`${firstName} ${lastName}`.trim());
-    window.location.href=u.toString();
+    const checkoutUrl=u.toString();
+    if(window.top && window.top!==window){
+      window.top.location.href=checkoutUrl;
+    }else{
+      window.location.href=checkoutUrl;
+    }
   };
   return(
     <div style={{minHeight:"100vh",background:C.bg}}>
