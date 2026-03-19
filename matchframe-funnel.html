@@ -921,7 +921,15 @@ const Thanks=()=><div style={{minHeight:"100vh",background:C.bg}}><TopBar/><Sec 
 
 /* ═══════════════════════════════════════════ ROUTER ═══════════════════════════════════════════ */
 function App(){
-  const[p,sP]=useState("quiz");
+  const initialPage=(()=>{
+    const allowed=new Set(["quiz","sales","order","oto1","oto1d","oto2","oto2d","thanks"]);
+    const fromQuery=new URLSearchParams(window.location.search).get("step");
+    const fromHash=window.location.hash.replace("#","");
+    if(fromQuery&&allowed.has(fromQuery)) return fromQuery;
+    if(fromHash&&allowed.has(fromHash)) return fromHash;
+    return "quiz";
+  })();
+  const[p,sP]=useState(initialPage);
   const go=x=>{sP(x);window.scrollTo({top:0,behavior:"instant"})};
   return(
     <>
