@@ -1,9 +1,10 @@
 import React from "react";
 
 export default function App() {
-  const qs = window.location.search || "";
+  const params = new URLSearchParams(window.location.search || "");
+  params.set("v", "20260319-1437");
   const hash = window.location.hash || "";
-  const src = `/matchframe-funnel.html?v=20260319-1432${qs}${hash}`;
+  const src = `/matchframe-funnel.html?${params.toString()}${hash}`;
 
   return (
     <iframe
