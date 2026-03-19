@@ -820,8 +820,21 @@ const OrderPage=({onComplete})=>{
   const[firstName,setFirstName]=useState("");const[lastName,setLastName]=useState("");const[email,setEmail]=useState("");
   const pks=[{l:"Profile Pack",ph:"8 photos",p:19,pp:"~$2.38"},{l:"Double Pack",ph:"16 photos",p:29,pp:"~$1.81",pop:true,sv:10},{l:"Ultimate Pack",ph:"24 photos",p:39,pp:"~$1.63",sv:20}];
   const pk=pks[sel];const bmp=(b1?7:0)+(b2?9:0);const tot=pk.p+bmp;
-  const handleCheckout=()=>{
-    onComplete({packIndex:sel,rush:b1,consult:b2,email,firstName,lastName});
+  const[isPaying,setIsPaying]=useState(false);
+  const handleCheckout=async()=>{
+    try{
+      setIsPaying(true);
+      const r=await fetch('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+        flow:'order',packIndex:sel,rush:b1,consult:b2,email,firstName,lastName
+      })});
+      const data=await r.json();
+      if(!r.ok||!data?.url) throw new Error(data?.error||'Checkout init failed');
+      if(window.top && window.top!==window) window.top.location.href=data.url;
+      else window.location.href=data.url;
+    }catch(e){
+      alert(`Checkout error: ${e.message||e}`);
+      setIsPaying(false);
+    }
   };
   return(
     <div style={{minHeight:"100vh",background:C.bg}}>
@@ -871,7 +884,7 @@ const OrderPage=({onComplete})=>{
             {b2&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:14,color:C.muted}}><span>Photo Consultation</span><span>$9</span></div>}
             <div style={{borderTop:`1px solid ${C.border}`,paddingTop:10,marginTop:8,display:"flex",justifyContent:"space-between",fontSize:18,fontWeight:700}}><span>Total</span><span style={{color:C.accent}}>${tot}</span></div>
           </div>
-          <Btn full size="lg" onClick={handleCheckout}><Icon name="chevronRight" size={18} color={C.bg}/> Continue to OTO Offers</Btn>
+          <Btn full size="lg" onClick={handleCheckout} disabled={isPaying}><Icon name="lock" size={18} color={C.bg}/> {isPaying?"Redirecting...":`Continue to Secure Stripe Checkout - $${tot}`}</Btn>
           <div style={{display:"flex",justifyContent:"center",gap:20,marginTop:16,fontSize:12,color:C.dim}}><span>🔒 Likeness Guarantee</span><span>🔒 256-bit SSL</span></div>
         </div>
       </Sec>
@@ -879,10 +892,12 @@ const OrderPage=({onComplete})=>{
   );
 };
 
-const calcFinalTotal=(cart)=>{
-  if(!cart) return 0;
-  const pack=[19,29,39][Number(cart.packIndex)]||0;
-  return pack + (cart.rush?7:0) + (cart.consult?9:0) + (cart.oto1?24:0) + (cart.oto1d?14:0) + (cart.oto2?13:0) + (cart.oto2d?7:0);
+const startOfferCheckout=async(offer)=>{
+  const r=await fetch('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({flow:'offer',offer})});
+  const data=await r.json();
+  if(!r.ok||!data?.url) throw new Error(data?.error||'Offer checkout init failed');
+  if(window.top && window.top!==window) window.top.location.href=data.url;
+  else window.location.href=data.url;
 };
 
 /* ═══════════════════════════════════════════ OTOs ═══════════════════════════════════════════ */
@@ -892,7 +907,7 @@ const OTO2=({onAccept,onDecline})=><div style={{minHeight:"100vh",background:C.b
 const OTO2D=({onAccept,onDecline})=><div style={{minHeight:"100vh",background:C.bg}}><TopBar/><Sec style={{textAlign:"center"}}><div className="fu"><Heading size="md">Just the Templates?</Heading><p style={{fontSize:16,lineHeight:1.7,color:C.muted,maxWidth:500,margin:"16px auto 28px"}}>Best-performing prompt templates to customize yourself.</p><div style={{background:C.bgCard,borderRadius:12,border:`1px solid ${C.border}`,padding:24,textAlign:"left",marginBottom:24}}>{["12 high-response Hinge prompt templates","Fill-in-the-blank - 5 minutes","Categorized: witty, sincere, adventurous"].map(it=><div key={it} style={{display:"flex",gap:10,marginBottom:12,fontSize:15}}><Icon name="check" size={18} color={C.green}/>{it}</div>)}<div style={{textAlign:"center",marginTop:16}}><div style={{fontSize:32,fontWeight:800,color:C.accent}}>$7</div></div></div><Btn full size="lg" onClick={onAccept}>Add Templates - $7 →</Btn><div style={{marginTop:16}}><button onClick={onDecline} style={{background:"none",border:"none",color:C.dim,fontSize:14,cursor:"pointer",fontFamily:"'Outfit',sans-serif",textDecoration:"underline"}}>No thanks, take me to my order</button></div></div></Sec></div>;
 
 /* ═══════════════════════════════════════════ THANK YOU ═══════════════════════════════════════════ */
-const Thanks=({cart,onCheckout,isPaying})=><div style={{minHeight:"100vh",background:C.bg}}><TopBar/><Sec style={{textAlign:"center"}}><div className="fu"><div style={{width:72,height:72,borderRadius:"50%",background:"rgba(78,203,113,.15)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 24px"}}><Icon name="check" size={36} color={C.green}/></div><Heading size="lg">Final Step: <span style={{color:C.accent}}>Complete Payment</span></Heading><p style={{fontSize:16,lineHeight:1.7,color:C.muted,maxWidth:520,margin:"16px auto 24px"}}>You made it through all offers. We only charge once, right now.</p><div style={{maxWidth:480,margin:"0 auto",background:C.bgCard,borderRadius:12,border:`1px solid ${C.border}`,padding:20,textAlign:"left"}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><span>Base order</span><strong>${[19,29,39][Number(cart?.packIndex)]||0}</strong></div>{cart?.rush&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:8,color:C.muted}}><span>Rush Delivery</span><span>$7</span></div>}{cart?.consult&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:8,color:C.muted}}><span>Photo Consultation</span><span>$9</span></div>}{cart?.oto1&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:8,color:C.muted}}><span>OTO: Domination Pack</span><span>$24</span></div>}{cart?.oto1d&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:8,color:C.muted}}><span>OTO: Lite Pack</span><span>$14</span></div>}{cart?.oto2&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:8,color:C.muted}}><span>OTO: Prompt Optimization</span><span>$13</span></div>}{cart?.oto2d&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:8,color:C.muted}}><span>OTO: Prompt Templates</span><span>$7</span></div>}<div style={{borderTop:`1px solid ${C.border}`,marginTop:12,paddingTop:12,display:"flex",justifyContent:"space-between",fontSize:20,fontWeight:700}}><span>Total</span><span style={{color:C.accent}}>${calcFinalTotal(cart)}</span></div></div><div style={{marginTop:22}}><Btn size="lg" onClick={onCheckout} disabled={isPaying}><Icon name="lock" size={18} color={C.bg}/>{isPaying?"Redirecting...":"Pay Securely with Stripe"}</Btn></div><p style={{marginTop:22,fontSize:13,color:C.dim}}>Questions? Reply to your confirmation email.</p></div></Sec></div>;
+const Thanks=()=><div style={{minHeight:"100vh",background:C.bg}}><TopBar/><Sec style={{textAlign:"center"}}><div className="fu"><div style={{width:72,height:72,borderRadius:"50%",background:"rgba(78,203,113,.15)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 24px"}}><Icon name="check" size={36} color={C.green}/></div><Heading size="lg">You're All Set. <span style={{color:C.accent}}>Your Upgrade Is on the Way.</span></Heading><p style={{fontSize:16,lineHeight:1.7,color:C.muted,maxWidth:520,margin:"16px auto 36px"}}>Here's what happens next:</p><div style={{textAlign:"left",maxWidth:480,margin:"0 auto"}}>{[{n:"1",t:"Check your email",d:"Upload link arrives within 5 minutes. Send us your 8–12 existing photos."},{n:"2",t:"We get to work",d:"AI generation + human QA review for authenticity, likeness, and dating-app fit."},{n:"3",t:"Your photos arrive",d:"Within 24 hours (or 12 with Rush), private gallery link with full set + ranking guide."},{n:"4",t:"Update your profile",d:"Swap in new photos using the guide. Watch matches roll in."}].map(({n,t,d})=><div key={n} style={{display:"flex",gap:16,marginBottom:24}}><div style={{width:36,height:36,borderRadius:"50%",background:C.accentMut,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontWeight:700,color:C.accent}}>{n}</div><div><h4 style={{fontWeight:600,fontSize:16,marginBottom:4}}>{t}</h4><p style={{fontSize:14,lineHeight:1.65,color:C.muted}}>{d}</p></div></div>)}</div><Divider/><div style={{background:C.bgCard,borderRadius:12,border:`1px solid ${C.border}`,padding:24}}><h3 style={{fontWeight:600,fontSize:17,marginBottom:12}}>While you wait...</h3><p style={{fontSize:14,lineHeight:1.7,color:C.muted}}>Gather your best existing photos. Good lighting, face visible - even older ones work. More variety = better results.</p></div><p style={{marginTop:32,fontSize:14,color:C.dim}}>Questions? Reply to your confirmation email.</p></div></Sec></div>;
 
 /* ═══════════════════════════════════════════ ROUTER ═══════════════════════════════════════════ */
 function App(){
@@ -905,32 +920,17 @@ function App(){
     return "quiz";
   })();
   const[p,sP]=useState(initialPage);
-  const[cart,setCart]=useState({});
-  const[isPaying,setIsPaying]=useState(false);
   const go=x=>{sP(x);window.scrollTo({top:0,behavior:"instant"})};
-  const finalizeCheckout=async()=>{
-    try{
-      setIsPaying(true);
-      const r=await fetch('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({flow:'final',...cart})});
-      const data=await r.json();
-      if(!r.ok||!data?.url) throw new Error(data?.error||'Checkout init failed');
-      if(window.top && window.top!==window) window.top.location.href=data.url;
-      else window.location.href=data.url;
-    }catch(e){
-      alert(`Checkout error: ${e.message||e}`);
-      setIsPaying(false);
-    }
-  };
   return(
     <>
       {p==="quiz"&&<QuizPage onComplete={()=>go("sales")}/>}
       {p==="sales"&&<SalesPage onCTA={()=>go("order")}/>}
-      {p==="order"&&<OrderPage onComplete={(base)=>{setCart(base);go("oto1");}}/>}
-      {p==="oto1"&&<OTO1 onAccept={()=>{setCart(c=>({...c,oto1:true,oto1d:false}));go("oto2");}} onDecline={()=>go("oto1d")}/>}
-      {p==="oto1d"&&<OTO1D onAccept={()=>{setCart(c=>({...c,oto1:false,oto1d:true}));go("oto2");}} onDecline={()=>go("oto2")}/>}
-      {p==="oto2"&&<OTO2 onAccept={()=>{setCart(c=>({...c,oto2:true,oto2d:false}));go("thanks");}} onDecline={()=>go("oto2d")}/>}
-      {p==="oto2d"&&<OTO2D onAccept={()=>{setCart(c=>({...c,oto2:false,oto2d:true}));go("thanks");}} onDecline={()=>go("thanks")}/>}
-      {p==="thanks"&&<Thanks cart={cart} onCheckout={finalizeCheckout} isPaying={isPaying}/>}
+      {p==="order"&&<OrderPage onComplete={()=>go("oto1")}/>}
+      {p==="oto1"&&<OTO1 onAccept={()=>startOfferCheckout("oto1").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>go("oto1d")}/>}
+      {p==="oto1d"&&<OTO1D onAccept={()=>startOfferCheckout("oto1d").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>go("oto2")}/>}
+      {p==="oto2"&&<OTO2 onAccept={()=>startOfferCheckout("oto2").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>go("oto2d")}/>}
+      {p==="oto2d"&&<OTO2D onAccept={()=>startOfferCheckout("oto2d").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>go("thanks")}/>}
+      {p==="thanks"&&<Thanks/>}
     </>
   );
 }

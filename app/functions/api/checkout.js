@@ -12,40 +12,48 @@ export async function onRequestPost(context) {
       { name: 'MatchFrame Ultimate Pack (24 photos)', amount: 3900 },
     ];
 
+    const offers = {
+      oto1: { name: 'Hinge Domination Pack', amount: 2400, successStep: 'oto2', cancelStep: 'oto1' },
+      oto1d: { name: 'Lite Pack', amount: 1400, successStep: 'oto2', cancelStep: 'oto1d' },
+      oto2: { name: 'Profile Prompt Optimization', amount: 1300, successStep: 'thanks', cancelStep: 'oto2' },
+      oto2d: { name: 'Prompt Templates Pack', amount: 700, successStep: 'thanks', cancelStep: 'oto2d' },
+    };
+
     let lineItems = [];
     let successStep = 'thanks';
-    let cancelStep = 'thanks';
+    let cancelStep = 'order';
     let metadata = {};
     let customerEmail = undefined;
 
-    if (body?.flow !== 'final') {
-      return json({ error: 'Invalid flow (expected final)' }, 400);
+    if (body?.flow === 'order') {
+      const pack = orderPacks[Number(body.packIndex)];
+      if (!pack) return json({ error: 'Invalid packIndex' }, 400);
+
+      lineItems.push(item(pack.name, pack.amount));
+      if (body.rush) lineItems.push(item('Rush Delivery (12 Hours)', 700));
+      if (body.consult) lineItems.push(item('Photo Selection Consultation', 900));
+
+      successStep = 'oto1';
+      cancelStep = 'order';
+      customerEmail = body.email || undefined;
+      metadata = {
+        flow: 'order',
+        packIndex: String(body.packIndex),
+        rush: body.rush ? '1' : '0',
+        consult: body.consult ? '1' : '0',
+        firstName: (body.firstName || '').slice(0, 120),
+        lastName: (body.lastName || '').slice(0, 120),
+      };
+    } else if (body?.flow === 'offer') {
+      const offer = offers[body.offer];
+      if (!offer) return json({ error: 'Invalid offer' }, 400);
+      lineItems.push(item(offer.name, offer.amount));
+      successStep = offer.successStep;
+      cancelStep = offer.cancelStep;
+      metadata = { flow: 'offer', offer: body.offer };
+    } else {
+      return json({ error: 'Invalid flow' }, 400);
     }
-
-    const pack = orderPacks[Number(body.packIndex)];
-    if (!pack) return json({ error: 'Invalid packIndex' }, 400);
-
-    lineItems.push(item(pack.name, pack.amount));
-    if (body.rush) lineItems.push(item('Rush Delivery (12 Hours)', 700));
-    if (body.consult) lineItems.push(item('Photo Selection Consultation', 900));
-    if (body.oto1) lineItems.push(item('Hinge Domination Pack', 2400));
-    if (body.oto1d) lineItems.push(item('Lite Pack', 1400));
-    if (body.oto2) lineItems.push(item('Profile Prompt Optimization', 1300));
-    if (body.oto2d) lineItems.push(item('Prompt Templates Pack', 700));
-
-    customerEmail = body.email || undefined;
-    metadata = {
-      flow: 'final',
-      packIndex: String(body.packIndex),
-      rush: body.rush ? '1' : '0',
-      consult: body.consult ? '1' : '0',
-      oto1: body.oto1 ? '1' : '0',
-      oto1d: body.oto1d ? '1' : '0',
-      oto2: body.oto2 ? '1' : '0',
-      oto2d: body.oto2d ? '1' : '0',
-      firstName: (body.firstName || '').slice(0, 120),
-      lastName: (body.lastName || '').slice(0, 120),
-    };
 
     const payload = new URLSearchParams();
     payload.set('mode', 'payment');
