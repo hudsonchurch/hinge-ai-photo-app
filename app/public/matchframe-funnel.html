@@ -820,38 +820,20 @@ const OrderPage=({onComplete})=>{
   const[firstName,setFirstName]=useState("");const[lastName,setLastName]=useState("");const[email,setEmail]=useState("");
   const pks=[{l:"Profile Pack",ph:"8 photos",p:19,pp:"~$2.38"},{l:"Double Pack",ph:"16 photos",p:29,pp:"~$1.81",pop:true,sv:10},{l:"Ultimate Pack",ph:"24 photos",p:39,pp:"~$1.63",sv:20}];
   const pk=pks[sel];const bmp=(b1?7:0)+(b2?9:0);const tot=pk.p+bmp;
-  const STRIPE_LINKS={
-    // Stripe Payment Links (currently TEST mode)
-    // Key format: "packIndex-rush-consult" where rush/consult are 0 or 1
-    // Mapped from payment_links.csv names (base/+2 confirmed, +1 combos inferred)
-    "0-0-0":"https://buy.stripe.com/test_28E6oA9EYek00fVfRQ7ss00", // Profile ($19)
-    "0-1-0":"https://buy.stripe.com/test_bJe8wIcRa2Bie6L4987ss02", // Rush + 1 more (inferred: Profile+Rush)
-    "0-0-1":"https://buy.stripe.com/test_bJe9AMbN60tad2H8po7ss0d", // Profile + 1 more (inferred: Profile+Consult)
-    "0-1-1":"https://buy.stripe.com/test_28E00c3gA1xeaUzaxw7ss0c", // Profile + 2 more
-    "1-0-0":"https://buy.stripe.com/test_7sY28k7wQ7VC3s79ts7ss04", // Double ($29)
-    "1-1-0":"https://buy.stripe.com/test_8x26oAaJ2b7O3s75dc7ss05", // Double + 1 more (inferred: +Rush)
-    "1-0-1":"https://buy.stripe.com/test_8x2aEQ2cwfo4aUzaxw7ss0b", // Double + 1 more (inferred: +Consult)
-    "1-1-1":"https://buy.stripe.com/test_5kQ00c3gAfo47IncFE7ss06", // Double + 2 more
-    "2-0-0":"https://buy.stripe.com/test_4gM9AM2cwb7O0fV0WW7ss07", // Ultimate ($39)
-    "2-1-0":"https://buy.stripe.com/test_8x28wIaJ2a3Kd2HbBA7ss08", // Ultimate + 1 more (inferred: +Rush)
-    "2-0-1":"https://buy.stripe.com/test_28E4gs6sM8ZG8Mr3547ss09", // Ultimate + 1 more (inferred: +Consult)
-    "2-1-1":"https://buy.stripe.com/test_8x27sE6sM3Fme6LeNM7ss0a", // Ultimate + 2 more
-  };
-  const handleCheckout=()=>{
-    const key=`${sel}-${b1?1:0}-${b2?1:0}`;
-    const base=STRIPE_LINKS[key];
-    if(!base){
-      alert(`Missing Stripe link for option ${key}. Add it in STRIPE_LINKS first.`);
-      return;
-    }
-    const u=new URL(base);
-    if(email)u.searchParams.set("prefilled_email",email);
-    if(firstName||lastName)u.searchParams.set("client_reference_id",`${firstName} ${lastName}`.trim());
-    const checkoutUrl=u.toString();
-    if(window.top && window.top!==window){
-      window.top.location.href=checkoutUrl;
-    }else{
-      window.location.href=checkoutUrl;
+  const[isPaying,setIsPaying]=useState(false);
+  const handleCheckout=async()=>{
+    try{
+      setIsPaying(true);
+      const r=await fetch('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+        flow:'order',packIndex:sel,rush:b1,consult:b2,email,firstName,lastName
+      })});
+      const data=await r.json();
+      if(!r.ok||!data?.url) throw new Error(data?.error||'Checkout init failed');
+      if(window.top && window.top!==window) window.top.location.href=data.url;
+      else window.location.href=data.url;
+    }catch(e){
+      alert(`Checkout error: ${e.message||e}`);
+      setIsPaying(false);
     }
   };
   return(
@@ -902,12 +884,20 @@ const OrderPage=({onComplete})=>{
             {b2&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:14,color:C.muted}}><span>Photo Consultation</span><span>$9</span></div>}
             <div style={{borderTop:`1px solid ${C.border}`,paddingTop:10,marginTop:8,display:"flex",justifyContent:"space-between",fontSize:18,fontWeight:700}}><span>Total</span><span style={{color:C.accent}}>${tot}</span></div>
           </div>
-          <Btn full size="lg" onClick={handleCheckout}><Icon name="lock" size={18} color={C.bg}/> Continue to Secure Stripe Checkout - ${tot}</Btn>
+          <Btn full size="lg" onClick={handleCheckout} disabled={isPaying}><Icon name="lock" size={18} color={C.bg}/> {isPaying?"Redirecting...":`Continue to Secure Stripe Checkout - $${tot}`}</Btn>
           <div style={{display:"flex",justifyContent:"center",gap:20,marginTop:16,fontSize:12,color:C.dim}}><span>🔒 Likeness Guarantee</span><span>🔒 256-bit SSL</span></div>
         </div>
       </Sec>
     </div>
   );
+};
+
+const startOfferCheckout=async(offer)=>{
+  const r=await fetch('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({flow:'offer',offer})});
+  const data=await r.json();
+  if(!r.ok||!data?.url) throw new Error(data?.error||'Offer checkout init failed');
+  if(window.top && window.top!==window) window.top.location.href=data.url;
+  else window.location.href=data.url;
 };
 
 /* ═══════════════════════════════════════════ OTOs ═══════════════════════════════════════════ */
@@ -936,10 +926,10 @@ function App(){
       {p==="quiz"&&<QuizPage onComplete={()=>go("sales")}/>}
       {p==="sales"&&<SalesPage onCTA={()=>go("order")}/>}
       {p==="order"&&<OrderPage onComplete={()=>go("oto1")}/>}
-      {p==="oto1"&&<OTO1 onAccept={()=>go("oto2")} onDecline={()=>go("oto1d")}/>}
-      {p==="oto1d"&&<OTO1D onAccept={()=>go("oto2")} onDecline={()=>go("oto2")}/>}
-      {p==="oto2"&&<OTO2 onAccept={()=>go("thanks")} onDecline={()=>go("oto2d")}/>}
-      {p==="oto2d"&&<OTO2D onAccept={()=>go("thanks")} onDecline={()=>go("thanks")}/>}
+      {p==="oto1"&&<OTO1 onAccept={()=>startOfferCheckout("oto1").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>go("oto1d")}/>}
+      {p==="oto1d"&&<OTO1D onAccept={()=>startOfferCheckout("oto1d").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>go("oto2")}/>}
+      {p==="oto2"&&<OTO2 onAccept={()=>startOfferCheckout("oto2").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>go("oto2d")}/>}
+      {p==="oto2d"&&<OTO2D onAccept={()=>startOfferCheckout("oto2d").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>go("thanks")}/>}
       {p==="thanks"&&<Thanks/>}
     </>
   );
