@@ -641,7 +641,7 @@ const SalesPage=({onCTA})=>(
               {label:"First Photo",sub:"Confident close-up, warm lighting",large:true,desc:"Your #1 MatchFrame photo: warm natural light, confident expression, clean background. This is the photo she sees first in the feed.",src:"./media/confident-close-up.jpg"},
               {label:"Outdoor Shot",sub:"Hiking / travel / park",desc:"Outdoor lifestyle: natural light, relaxed body language, activity-based context",src:"./media/outdoor-travel.jpg"},
               {label:"Social Setting",sub:"With friends / at event",desc:"Social proof photo: well-lit, laughing, clearly having fun, cropped for dating",src:"./media/the social shot example.png"},
-              {label:"Full Body",sub:"Well-dressed, good posture",desc:"Full body in a casual-sharp outfit, natural pose, clean urban or park setting",src:"./media/full-body.jpg",position:"center 82%"},
+              {label:"Full Body",sub:"Well-dressed, good posture",desc:"Full body in a casual-sharp outfit, natural pose, clean urban or park setting",src:"./media/full-body.jpg",position:"center 62%"},
               {label:"Interest/Hobby",sub:"Cooking / pets / sport",desc:"Show a genuine interest: cooking, with a dog, playing guitar, at a game",src:"./media/great%20dating%20photo%20example.JPG"},
               {label:"Casual/Candid",sub:"Relaxed and real",desc:"Candid-style: caught mid-laugh, natural moment, warm tones, approachable",src:"./media/good%20photo.png"},
             ].map((s,i)=>(
@@ -686,7 +686,7 @@ const SalesPage=({onCTA})=>(
           {label:"Social & Friends",desc:"Shows you have a life. Cropped for dating but clearly social.",color:"rgba(100,140,255,.06)",border:"rgba(100,140,255,.2)",
            photo:"Social setting: restaurant, rooftop, gathering. Laughing, approachable energy, well-lit",src:"./media/the social shot example.png"},
           {label:"Full Body",desc:"Well-dressed, natural posture. Eliminates the 'what does he look like' question.",color:"rgba(200,100,200,.06)",border:"rgba(200,100,200,.2)",
-           photo:"Full body: casual-sharp outfit, natural standing pose, urban or park background",src:"./media/full-body.jpg",position:"center 82%"},
+           photo:"Full body: casual-sharp outfit, natural standing pose, urban or park background",src:"./media/full-body.jpg",position:"center 62%"},
         ].map(({label,desc,color,border,photo,src,position})=>(
           <div key={label} style={{background:color,borderRadius:12,border:`1px solid ${border}`,padding:16}}>
             <PhotoPlaceholder type="after" height={160} description={photo} photoNote={`Category example: ${label}`} src={src} objectPosition={position||"center"}/>
