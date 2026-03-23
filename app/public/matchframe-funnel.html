@@ -264,11 +264,12 @@ const QuizPage=({onComplete})=>{
   const pick=v=>{setAns({...ans,[STEPS[idx].id]:v});next()};
   const handleShowResults=async()=>{
     try{
-      await fetch('https://hooks.zapier.com/hooks/catch/26928378/uplokwp/',{
-        method:'POST',
-        headers:{'content-type':'application/json'},
-        body:JSON.stringify({email,name:(ans.name||ans.firstName||""),answers:ans,source:'hinge-quiz-funnel'})
-      });
+      const name=(ans.name||ans.firstName||"").trim();
+      const u=new URL('https://hooks.zapier.com/hooks/catch/26928378/uplokwp/');
+      u.searchParams.set('email',email);
+      if(name) u.searchParams.set('name',name);
+      u.searchParams.set('source','hinge-quiz-funnel');
+      await fetch(u.toString(),{method:'GET'});
     }catch(_e){/* non-blocking */}
     onComplete();
   };
