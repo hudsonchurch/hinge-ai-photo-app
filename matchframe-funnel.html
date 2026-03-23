@@ -262,6 +262,12 @@ const QuizPage=({onComplete})=>{
   const qTot=STEPS.filter(s=>s.type==="q").length;
   const next=()=>{setIdx(idx+1);window.scrollTo({top:0,behavior:"instant"})};
   const pick=v=>{setAns({...ans,[STEPS[idx].id]:v});next()};
+  const handleShowResults=async()=>{
+    try{
+      await fetch('/api/quiz-lead',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email,answers:ans})});
+    }catch(_e){/* non-blocking */}
+    onComplete();
+  };
 
   // EMAIL CAPTURE (Step 13)
   if(idx>=STEPS.length){
@@ -284,7 +290,7 @@ const QuizPage=({onComplete})=>{
             <div style={{maxWidth:420,margin:"0 auto",textAlign:"left"}}>
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Your best email address" style={{width:"100%",padding:"14px 18px",borderRadius:8,border:`1px solid ${C.border}`,background:C.bgCard,color:C.text,fontSize:16,fontFamily:"'Outfit',sans-serif",marginBottom:16}}/>
               <div style={{marginBottom:20}}>{["See your personalized profile improvement plan","Get access to our Hinge-optimized AI photo upgrade","See real before/after results from men like you","Backed by our \"Still Looks Like You\" guarantee"].map(it=><div key={it} style={{display:"flex",gap:10,marginBottom:10,fontSize:14,color:C.muted}}><Icon name="check" size={18} color={C.green}/>{it}</div>)}</div>
-              <Btn full size="lg" onClick={onComplete} disabled={!email}>Show Me My Results →</Btn>
+              <Btn full size="lg" onClick={handleShowResults} disabled={!email}>Show Me My Results →</Btn>
               <p style={{fontSize:12,color:C.dim,marginTop:12,textAlign:"center"}}>No spam. Unsubscribe anytime.</p>
             </div>
           </div>
