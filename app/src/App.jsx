@@ -2,7 +2,7 @@ import React from "react";
 
 export default function App() {
   const params = new URLSearchParams(window.location.search || "");
-  params.set("v", "20260319-1437");
+  params.set("v", "20260324-1112");
   const hash = window.location.hash || "";
   const src = `/matchframe-funnel.html?${params.toString()}${hash}`;
 
