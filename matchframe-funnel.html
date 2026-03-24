@@ -265,10 +265,21 @@ const QuizPage=({onComplete})=>{
   const handleShowResults=async()=>{
     try{
       const name=(ans.name||ans.firstName||"").trim();
+      const objection=(ans.obj||"").trim();
+      const objectionMap={
+        "The photos still look like me - no catfishing":"still_looks_like_me",
+        "It's fast and easy - no awkward photoshoot":"fast_and_easy",
+        "There's proof it actually works":"proof_it_works",
+        "It's not ridiculously expensive":"not_too_expensive",
+      };
+      const priority=objectionMap[objection]||"unknown";
+
       const u=new URL('https://hooks.zapier.com/hooks/catch/26928378/uplokwp/');
       u.searchParams.set('email',email);
       if(name) u.searchParams.set('name',name);
       u.searchParams.set('source','hinge-quiz-funnel');
+      u.searchParams.set('priority',priority);
+      if(objection) u.searchParams.set('priority_raw',objection);
       await fetch(u.toString(),{method:'GET'});
     }catch(_e){/* non-blocking */}
     onComplete();
