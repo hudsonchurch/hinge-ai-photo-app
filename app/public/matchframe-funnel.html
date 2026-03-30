@@ -17,6 +17,14 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;-web
 ::selection{background:var(--accent);color:var(--bg)}
 input:focus,select:focus{outline:2px solid var(--accent);outline-offset:2px}
 input::placeholder{color:var(--dim)}
+
+.checkout-card{width:100%;max-width:100%;overflow-x:hidden}
+.checkout-name-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.checkout-name-row input,.checkout-card input{width:100%;max-width:100%;min-width:0}
+@media (max-width:768px){
+  .checkout-name-row{grid-template-columns:1fr}
+}
+
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
@@ -891,10 +899,10 @@ const OrderPage=({onComplete})=>{
             </div>
           ))}
         </div>
-        <div style={{background:C.bgCard,borderRadius:12,border:`1px solid ${C.border}`,padding:24}}>
+        <div className="checkout-card" style={{background:C.bgCard,borderRadius:12,border:`1px solid ${C.border}`,padding:24}}>
           <h3 style={{fontWeight:600,fontSize:17,marginBottom:20}}>Checkout Details</h3>
           <div style={{display:"grid",gap:12}}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+            <div className="checkout-name-row">
               <input value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="First Name" style={{padding:"12px 14px",borderRadius:8,border:`1px solid ${C.border}`,background:C.bg,color:C.text,fontSize:15,fontFamily:"'Outfit',sans-serif"}}/>
               <input value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="Last Name" style={{padding:"12px 14px",borderRadius:8,border:`1px solid ${C.border}`,background:C.bg,color:C.text,fontSize:15,fontFamily:"'Outfit',sans-serif"}}/>
             </div>
