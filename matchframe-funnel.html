@@ -71,6 +71,20 @@ const {useState,useEffect,useRef,createElement:h} = React;
 /* ─── COLORS shorthand ─── */
 const C={bg:"#0B0B0F",bgCard:"#15151C",bgEl:"#1C1C26",accent:"#C9943E",accentMut:"rgba(201,148,62,0.15)",text:"#F0EBE0",muted:"#8A8690",dim:"#5C5862",red:"#E84855",green:"#4ECB71",border:"#2A2A35"};
 
+const PIXEL_ID="1647421143118689";
+(function initMetaPixel(){
+  if(typeof window==="undefined"||window.fbq) return;
+  (function(f,b,e,v,n,t,s){
+    if(f.fbq) return; n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq) f._fbq=n; n.push=n; n.loaded=!0; n.version='2.0'; n.queue=[];
+    t=b.createElement(e); t.async=!0; t.src=v; s=b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t,s);
+  })(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  window.fbq('init', PIXEL_ID);
+  window.fbq('track', 'PageView');
+})();
+const track=(event,params={})=>{try{window.fbq&&window.fbq('track',event,params)}catch(_){}};
+const trackCustom=(event,params={})=>{try{window.fbq&&window.fbq('trackCustom',event,params)}catch(_){}};
+
 /* ─── SVG ICONS (inline, no deps) ─── */
 const Icon=({name,size=20,color=C.muted})=>{
   const icons={
@@ -269,8 +283,17 @@ const QuizPage=({onComplete})=>{
   const qNum=STEPS.slice(0,idx+1).filter(s=>s.type==="q").length;
   const qTot=STEPS.filter(s=>s.type==="q").length;
   const next=()=>{setIdx(idx+1);window.scrollTo({top:0,behavior:"instant"})};
-  const pick=v=>{setAns({...ans,[STEPS[idx].id]:v});next()};
+  const pick=v=>{
+    const step=STEPS[idx];
+    const questionIndex=STEPS.slice(0,idx+1).filter(x=>x.type==="q").length;
+    trackCustom("QuizQuestionCompleted",{question_id:step.id,question_index:questionIndex,question_total:qTot,answer:v});
+    if(questionIndex===qTot) trackCustom("QuizCompleted",{question_total:qTot});
+    setAns({...ans,[step.id]:v});
+    next();
+  };
   const handleShowResults=async()=>{
+    track("Lead",{content_name:"Quiz Results Lead",status:"email_submitted"});
+    trackCustom("EmailEntered",{source:"quiz_results_step"});
     try{
       const name=(ans.name||ans.firstName||"").trim();
       const objection=(ans.obj||"").trim();
@@ -853,6 +876,8 @@ const OrderPage=({onComplete})=>{
   const[isPaying,setIsPaying]=useState(false);
   const handleCheckout=async()=>{
     try{
+      track("InitiateCheckout",{currency:"USD",value:tot,num_items:1,content_name:pk.l});
+      trackCustom("OrderCheckoutStarted",{pack:pk.l,pack_index:sel,rush:b1,consult:b2,value:tot});
       setIsPaying(true);
       const r=await fetch('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
         flow:'order',packIndex:sel,rush:b1,consult:b2,email,firstName,lastName
@@ -923,6 +948,7 @@ const OrderPage=({onComplete})=>{
 };
 
 const startOfferCheckout=async(offer)=>{
+  trackCustom("OTOAccepted",{offer});
   const r=await fetch('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({flow:'offer',offer})});
   const data=await r.json();
   if(!r.ok||!data?.url) throw new Error(data?.error||'Offer checkout init failed');
@@ -950,16 +976,21 @@ function App(){
     return "quiz";
   })();
   const[p,sP]=useState(initialPage);
+  useEffect(()=>{
+    trackCustom("FunnelStepView",{step:p});
+    if(p==="sales") track("ViewContent",{content_name:"MatchFrame Sales Page"});
+    if(p==="thanks") track("Purchase",{currency:"USD"});
+  },[p]);
   const go=x=>{sP(x);window.scrollTo({top:0,behavior:"instant"})};
   return(
     <>
       {p==="quiz"&&<QuizPage onComplete={()=>go("sales")}/>}
       {p==="sales"&&<SalesPage onCTA={()=>go("order")}/>}
       {p==="order"&&<OrderPage onComplete={()=>go("oto1")}/>}
-      {p==="oto1"&&<OTO1 onAccept={()=>startOfferCheckout("oto1").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>go("oto1d")}/>}
-      {p==="oto1d"&&<OTO1D onAccept={()=>startOfferCheckout("oto1d").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>go("oto2")}/>}
-      {p==="oto2"&&<OTO2 onAccept={()=>startOfferCheckout("oto2").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>go("oto2d")}/>}
-      {p==="oto2d"&&<OTO2D onAccept={()=>startOfferCheckout("oto2d").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>go("thanks")}/>}
+      {p==="oto1"&&<OTO1 onAccept={()=>startOfferCheckout("oto1").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>{trackCustom("OTODeclined",{offer:"oto1"});go("oto1d");}}/>}
+      {p==="oto1d"&&<OTO1D onAccept={()=>startOfferCheckout("oto1d").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>{trackCustom("OTODeclined",{offer:"oto1d"});go("oto2");}}/>}
+      {p==="oto2"&&<OTO2 onAccept={()=>startOfferCheckout("oto2").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>{trackCustom("OTODeclined",{offer:"oto2"});go("oto2d");}}/>}
+      {p==="oto2d"&&<OTO2D onAccept={()=>startOfferCheckout("oto2d").catch(e=>alert(`Checkout error: ${e.message||e}`))} onDecline={()=>{trackCustom("OTODeclined",{offer:"oto2d"});go("thanks");}}/>}
       {p==="thanks"&&<Thanks/>}
     </>
   );
